@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import math
 
 import numpy as np
 import regex as re
@@ -13,7 +14,7 @@ def load_vocab(filename):
     """
     vocab = dict()
     words = []
-    counter = 0
+    counter = 1  # start off with 1 so that embedding matrix's first vector is zero
     with open(filename, "r") as f:
         for line in f:
             word = line.strip()
@@ -27,12 +28,12 @@ def load_vocab(filename):
 def load_embeddings(vocab, dim, filename):
     """
     Load a subset of embedding vectors from file corresponding to vocabulary provided.
-    :param vocab: string->int map from words to their ids (id corresponds to vector's row in the resulting embedding matrix)
+    :param vocab: string->int map from words to their ids (id corresponds to vector's row in the resulting embedding matrix). All ids > 0.
     :param dim: embedding vector dimension
     :param filename: file where each line is a word followed by `dim` floats, all space-separated
-    :return: len(vocab) x dim numpy embedding matrix
+    :return: (len(vocab)+1) x dim numpy embedding matrix. +1 is because 0th vector is a zero vector for "unknown"
     """
-    em = np.zeros((len(vocab), dim), dtype="float32")
+    em = np.zeros((len(vocab) + 1, dim), dtype="float32")
 
     with open(filename, "r") as f:
         for linenum, line in enumerate(f):
@@ -64,3 +65,40 @@ class CustomTokenizer:
         if self.punct_one_token_per_char:
             text = re.sub(self._re_punct, "\\1 ", text)
         return self._tokenizer.tokenize(text)
+
+
+class Text2Seq:
+    def __init__(self, vocab):
+        """
+        Use toseq() method to convert a string to a sequence of token ids
+        :param vocab: word->int map
+        """
+        self.vocab = vocab
+        self.tokenizer = CustomTokenizer()
+
+    def toseq(self, text, notfound=-1):
+        seq = []
+        for word in self.tokenizer.tokenize(text):
+            id = notfound
+            if word in self.vocab.keys():
+                id = self.vocab[word]
+            seq.append(id)
+        return seq
+
+
+def seqwindows(seq, seqlen=256, stride=128):
+    nseq = int(math.ceil(len(seq) / stride))
+    X = np.zeros((nseq, seqlen), dtype="int32")
+    Y = np.copy(X)
+
+    seqa = np.array(seq, dtype="int32")
+    for i in range(nseq):
+        startX = i * stride
+        endX = min(len(seq), startX + seqlen)
+        startY = min(len(seq), startX + 1)
+        endY = min(len(seq), endX + 1)
+
+        X[i, 0:endX - startX] = seqa[startX:endX]
+        Y[i, 0:endY - startY] = seqa[startY:endY]
+
+    return X, Y

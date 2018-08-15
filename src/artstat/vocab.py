@@ -1,8 +1,8 @@
 #!/usr/bin/python3
-
 import os
 
 import click
+import numpy as np
 from tqdm import tqdm
 
 # line = unidecode(line)
@@ -78,18 +78,37 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet)
     files = getfiles(textpath)
     if not quiet:
         files = tqdm(files, ncols=100, ascii=True)
-    
+
+    maxtokens, sumtokens = 0, 0
+
+    wordsperfile = []
     for i, filename in enumerate(files):
         if maxnumfiles > 0 and i+1 > maxnumfiles:
             break
         with open(filename, "r") as f:
             text = f.read()
-            for word in tokenizer.tokenize(text):
+            tokens = tokenizer.tokenize(text)
+            if len(tokens) > maxtokens:
+                maxtokens = len(tokens)
+            sumtokens += len(tokens)
+            wordsperfile.append(len(tokens))
+            for word in tokens:
                 add_to_vocab(vocab, word)
+
+    wpf = np.array(wordsperfile)
+
 
     echo("")
     echo("Total files:", i)
-    echo("Total words:", len(vocab))
+    echo("Unique words:", len(vocab))
+    echo("Total words:", np.sum(wpf))
+    echo("Max words per file:", np.max(wpf))
+    echo("Avg words per file:", np.mean(wpf))
+    echo("50th percentile:", np.percentile(wpf, 50.0))
+    echo("90th percentile:", np.percentile(wpf, 90.0))
+    echo("95th percentile:", np.percentile(wpf, 95.0))
+    echo("99th percentile:", np.percentile(wpf, 99.0))
+    echo("99.9th percentile:", np.percentile(wpf, 99.9))
 
     if outputfile:
         writevocab(vocab, outputfile, sortwords)

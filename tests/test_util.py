@@ -9,8 +9,8 @@ def test_load_vocab():
     assert len(words) == 5
     assert len(vocab) == 5
     assert words[0] == "hello"
-    assert vocab["hello"] == 0
-    assert vocab["HI"] == 4
+    assert vocab["hello"] == 1
+    assert vocab["HI"] == 5
     assert words[4] == "HI"
 
 
@@ -18,7 +18,8 @@ def test_load_embeddings():
     words, vocab = util.load_vocab("testdata/test_vocab.txt")
     em = util.load_embeddings(vocab, 3, "testdata/test_embedding.txt")
 
-    expected = np.array([[4.1, 4.2, 4.3],
+    expected = np.array([[0.0, 0.0, 0.0],
+                         [4.1, 4.2, 4.3],
                          [5.1, -5.2, 5.3],
                          [-2.1, 2.2, -2.3],
                          [-3.1, 3.2, 3.333],
@@ -40,3 +41,17 @@ def test_custom_tokenizer():
     assert tokens == ["Friends", ",", "Romans", ",", "(", ",",
                       "countrymen", ")", "@", ",", "ain", "'", "t",
                       "you", "a", "jolly", "bunch", "."]
+
+
+def test_seqwindows():
+    seq = list(range(2, 8))
+    X, Y = util.seqwindows(seq, 3, 2)
+    Xe = np.array([[2, 3, 4],
+                   [4, 5, 6],
+                   [6, 7, 0]], dtype="int32")
+    Ye = np.array([[3, 4, 5],
+                   [5, 6, 7],
+                   [7, 0, 0]], dtype="int32")
+
+    assert np.array_equal(Xe, X)
+    assert np.array_equal(Ye, Y)
