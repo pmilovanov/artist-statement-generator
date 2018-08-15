@@ -76,7 +76,7 @@ class Text2Seq:
         self.vocab = vocab
         self.tokenizer = CustomTokenizer()
 
-    def toseq(self, text, notfound=-1):
+    def toseq(self, text, notfound=0):
         seq = []
         for word in self.tokenizer.tokenize(text):
             id = notfound

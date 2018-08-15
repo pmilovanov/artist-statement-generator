@@ -55,3 +55,12 @@ def test_seqwindows():
 
     assert np.array_equal(Xe, X)
     assert np.array_equal(Ye, Y)
+
+
+def test_Text2Seq():
+    words, vocab = util.load_vocab("testdata/test_vocab.txt")
+    t2s = util.Text2Seq(vocab)
+    text = "    Ahoy hello world hey HI 2 1 \n meow"
+    tokens = t2s.toseq(text)
+
+    assert tokens == [0, 1, 2, 0, 5, 4, 3, 0]
