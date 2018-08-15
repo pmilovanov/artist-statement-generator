@@ -42,6 +42,6 @@ def load_embeddings(vocab, dim, filename):
                 continue
             i = vocab[word]
 
-            em[i, :] = np.array(line.strip.split()[1:], dtype="float32")
+            em[i, :] = np.array(line.strip().split()[1:], dtype="float32")
 
     return em
