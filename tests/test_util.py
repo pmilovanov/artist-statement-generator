@@ -1,6 +1,7 @@
 import numpy as np
 
 from artstat import util
+from artstat.util import CustomTokenizer
 
 
 def test_load_vocab():
@@ -25,6 +26,17 @@ def test_load_embeddings():
 
     assert np.array_equal(expected, em)
 
+
 # path_glove = "/home/pmilovanov/data/glove/glove.840B.300d.txt"
 
 # path_vocab = "/home/pmilovanov/hg/dl/artstat/vocab.txt"
+
+def test_custom_tokenizer():
+    tokenizer = CustomTokenizer()
+
+    s = "   Friends, Romans, (,countrymen)@, ain't you \na jolly bunch."
+    tokens = tokenizer.tokenize(s)
+
+    assert tokens == ["Friends", ",", "Romans", ",", "(", ",",
+                      "countrymen", ")", "@", ",", "ain", "'", "t",
+                      "you", "a", "jolly", "bunch", "."]

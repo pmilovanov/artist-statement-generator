@@ -3,13 +3,11 @@
 import os
 
 import click
-import regex as re
-from nltk.tokenize.regexp import WordPunctTokenizer
 from tqdm import tqdm
-from unidecode import unidecode
 
+# line = unidecode(line)
+from artstat.util import CustomTokenizer
 
-#line = unidecode(line)
 
 def getfiles(path, ignore=['/.hg', '/.git']):
     results = []
@@ -71,10 +69,8 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet)
             print(*args)
     
     vocab = dict()
-    
-    tokenizer = WordPunctTokenizer()
 
-    re_punct = re.compile("(\p{P})")
+    tokenizer = CustomTokenizer(normalize_unicode)
 
     echo("Processing files in ", textpath)
     echo("")
@@ -88,11 +84,6 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet)
             break
         with open(filename, "r") as f:
             text = f.read()
-            if normalize_unicode:
-                text = unidecode(text)
-
-            text = re.sub(re_punct, "\\1 ", text)
-
             for word in tokenizer.tokenize(text):
                 add_to_vocab(vocab, word)
 

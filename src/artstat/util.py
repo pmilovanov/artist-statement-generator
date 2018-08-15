@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 
 import numpy as np
+import regex as re
+from nltk import WordPunctTokenizer
+from unidecode import unidecode
 
 
 def load_vocab(filename):
@@ -45,3 +48,19 @@ def load_embeddings(vocab, dim, filename):
             em[i, :] = np.array(line.strip().split()[1:], dtype="float32")
 
     return em
+
+
+class CustomTokenizer:
+    def __init__(self, unicode_to_ascii=True, punct_one_token_per_char=True):
+        self.unicode_to_ascii = unicode_to_ascii
+        self.punct_one_token_per_char = punct_one_token_per_char
+
+        self._re_punct = re.compile("(\p{P})")
+        self._tokenizer = WordPunctTokenizer()
+
+    def tokenize(self, text):
+        if self.unicode_to_ascii:
+            text = unidecode(text)
+        if self.punct_one_token_per_char:
+            text = re.sub(self._re_punct, "\\1 ", text)
+        return self._tokenizer.tokenize(text)
