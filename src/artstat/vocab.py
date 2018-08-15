@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 
-from unidecode import unidecode
-import sys, os
-from tqdm import tqdm
+import os
+
 import click
 from nltk.tokenize.regexp import WordPunctTokenizer
+from tqdm import tqdm
+from unidecode import unidecode
+
 
 #line = unidecode(line)
 
