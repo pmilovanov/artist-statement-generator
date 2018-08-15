@@ -3,6 +3,7 @@
 import os
 
 import click
+import regex as re
 from nltk.tokenize.regexp import WordPunctTokenizer
 from tqdm import tqdm
 from unidecode import unidecode
@@ -73,6 +74,8 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet)
     
     tokenizer = WordPunctTokenizer()
 
+    re_punct = re.compile("(\p{P})")
+
     echo("Processing files in ", textpath)
     echo("")
 
@@ -86,7 +89,10 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet)
         with open(filename, "r") as f:
             text = f.read()
             if normalize_unicode:
-                text = unidecode(text).lower()
+                text = unidecode(text)
+
+            text = re.sub(re_punct, "\\1 ", text)
+
             for word in tokenizer.tokenize(text):
                 add_to_vocab(vocab, word)
 

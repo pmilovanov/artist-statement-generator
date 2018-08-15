@@ -24,3 +24,7 @@ def test_load_embeddings():
                          [10.0, 20.0, 30.0]], dtype="float32")
 
     assert np.array_equal(expected, em)
+
+# path_glove = "/home/pmilovanov/data/glove/glove.840B.300d.txt"
+
+# path_vocab = "/home/pmilovanov/hg/dl/artstat/vocab.txt"
