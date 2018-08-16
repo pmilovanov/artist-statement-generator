@@ -99,6 +99,9 @@ def seqwindows(seq, seqlen=256, stride=128):
         endY = min(len(seq), endX + 1)
 
         X[i, 0:endX - startX] = seqa[startX:endX]
+
         Y[i, 0:endY - startY] = seqa[startY:endY]
 
     return X, Y
+
+# def load_data(vocab, path)
