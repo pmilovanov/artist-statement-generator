@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import math
+import os
 
 import numpy as np
 import regex as re
@@ -90,18 +91,36 @@ def seqwindows(seq, seqlen=256, stride=128):
     nseq = int(math.ceil(len(seq) / stride))
     X = np.zeros((nseq, seqlen), dtype="int32")
     Y = np.copy(X)
-
     seqa = np.array(seq, dtype="int32")
     for i in range(nseq):
         startX = i * stride
         endX = min(len(seq), startX + seqlen)
         startY = min(len(seq), startX + 1)
         endY = min(len(seq), endX + 1)
-
         X[i, 0:endX - startX] = seqa[startX:endX]
-
         Y[i, 0:endY - startY] = seqa[startY:endY]
-
     return X, Y
 
-# def load_data(vocab, path)
+
+def recursively_list_files(path, ignore=['/.hg', '/.git']):
+    """Recursively list files under a directory, excluding filenames containing strings in the `ignore` list."""
+    results = []
+    for root, dirs, files in os.walk(path):
+        for filename in files:
+            should_append = True
+            for ig in ignore:
+                if root.find(ig) > -1 or filename.find(ig) > -1:
+                    should_append = False
+            if should_append:
+                results.append(os.path.join(root, filename))
+    return results
+
+
+def load_data_sequences(path, vocab, seqlen, stride):
+    X, Y = None, None
+    t2s = Text2Seq()
+    files = recursively_list_files(path)
+    for fname in files:
+        with open(fname, "r") as f:
+            seq = t2s.toseq(f.read())
+        # Xi, Yi =

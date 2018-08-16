@@ -1,25 +1,12 @@
 #!/usr/bin/python3
-import os
 
 import click
 import numpy as np
 from tqdm import tqdm
 
 # line = unidecode(line)
-from artstat.util import CustomTokenizer
+from artstat.util import CustomTokenizer, recursively_list_files
 
-
-def getfiles(path, ignore=['/.hg', '/.git']):
-    results = []
-    for root, dirs, files in os.walk(path):
-        for filename in files:
-            should_append = True
-            for ig in ignore:
-                if root.find(ig) > -1 or filename.find(ig) > -1:
-                    should_append = False
-            if should_append:
-                results.append(os.path.join(root, filename))
-    return results
 
 def add_to_vocab(vocab, word):
     if not word in vocab.keys():
@@ -75,7 +62,7 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet)
     echo("Processing files in ", textpath)
     echo("")
 
-    files = getfiles(textpath)
+    files = recursively_list_files(textpath)
     if not quiet:
         files = tqdm(files, ncols=100, ascii=True)
 
