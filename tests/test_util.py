@@ -52,7 +52,6 @@ def test_seqwindows():
     Ye = np.array([[3, 4, 5],
                    [5, 6, 7],
                    [7, 0, 0]], dtype="int32")
-
     assert np.array_equal(Xe, X)
     assert np.array_equal(Ye, Y)
 

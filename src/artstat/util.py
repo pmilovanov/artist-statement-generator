@@ -5,6 +5,7 @@ import os
 import numpy as np
 import regex as re
 from nltk import WordPunctTokenizer
+from tqdm import tqdm
 from unidecode import unidecode
 
 
@@ -88,7 +89,9 @@ class Text2Seq:
 
 
 def seqwindows(seq, seqlen=256, stride=128):
-    nseq = int(math.ceil(len(seq) / stride))
+    # nseq = int(math.ceil(len(seq) / stride))
+
+    nseq = int(math.ceil(max(0, len(seq) - seqlen) / stride)) + 1
     X = np.zeros((nseq, seqlen), dtype="int32")
     Y = np.copy(X)
     seqa = np.array(seq, dtype="int32")
@@ -116,11 +119,18 @@ def recursively_list_files(path, ignore=['/.hg', '/.git']):
     return results
 
 
-def load_data_sequences(path, vocab, seqlen, stride):
-    X, Y = None, None
-    t2s = Text2Seq()
+def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
+    XX, YY = [], []
+    t2s = Text2Seq(vocab)
     files = recursively_list_files(path)
-    for fname in files:
+    for i, fname in enumerate(tqdm(files, ascii=True)):
+        if numfiles > 0 and (i + 1) > numfiles:
+            break  # Process at most `numfiles` files
         with open(fname, "r") as f:
             seq = t2s.toseq(f.read())
-        # Xi, Yi =
+            Xi, Yi = seqwindows(seq, seqlen, stride)
+            XX.append(Xi)
+            YY.append(Yi)
+    X = np.concatenate(XX)
+    Y = np.concatenate(YY)
+    return X, Y
