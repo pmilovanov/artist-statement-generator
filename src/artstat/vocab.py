@@ -33,7 +33,7 @@ def writevocab(vocab, outputfile, sortwords, vocabsize):
     covered = 0
     with open(outputfile, "w") as f:
         for i, (word, count) in enumerate(sortedvocab(vocab)):
-            if i > vocabsize:
+            if vocabsize > 0 and i > vocabsize:
                 break
             f.write(word)
             f.write("\n")
@@ -51,8 +51,8 @@ def writevocab(vocab, outputfile, sortwords, vocabsize):
 @click.option("--outputfile", default="",
               help="If provided, will write out a list of vocabulary words " \
                    "to this file, one per line.")
-@click.option("--vocabsize", default=30000,
-              help="Max words to output in vocab")
+@click.option("--vocabsize", default=0,
+              help="Max words to output in vocab. Default=0, output all")
 @click.option("--output_word_counts_file", default="",
               help="If provided, write a full histogram of word counts to this filename.")
 @click.option("--sortwords", default=True,

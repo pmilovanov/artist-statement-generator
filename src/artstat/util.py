@@ -9,16 +9,19 @@ from tqdm import tqdm
 from unidecode import unidecode
 
 
-def load_vocab(filename):
+def load_vocab(filename, maxwords=0):
     """
     Load newline-separated words from file to dict mapping them to unique ids.
+    :param maxwords: Max number of words to load. Load all by default.
     Returns (list of words, word->id map)
     """
     vocab = dict()
     words = []
-    counter = 1  # start off with 1 so that embedding matrix's first vector is zero
+    counter = 1  # start off with 1 so that embedding matrix's first vector is zero and second is for unknown
     with open(filename, "r") as f:
-        for line in f:
+        for i, line in enumerate(f):
+            if maxwords > 0 and i > maxwords:
+                break
             word = line.strip()
             words.append(word)
             vocab[word] = counter
@@ -33,7 +36,7 @@ def load_embeddings(vocab, dim, filename):
     :param vocab: string->int map from words to their ids (id corresponds to vector's row in the resulting embedding matrix). All ids > 0.
     :param dim: embedding vector dimension
     :param filename: file where each line is a word followed by `dim` floats, all space-separated
-    :return: (len(vocab)+1) x dim numpy embedding matrix. +1 is because 0th vector is a zero vector for "unknown"
+    :return: MxN = (len(vocab)+1) x dim numpy embedding matrix. The +1 for M is because 0th vector is a zero vector for padding.
     """
     em = np.zeros((len(vocab) + 1, dim), dtype="float32")
 
@@ -79,13 +82,20 @@ class Text2Seq:
         self.tokenizer = CustomTokenizer()
 
     def toseq(self, text, notfound=0):
+        """
+        :return: seq, unknown. Seq is a list of integers, word indices in the vocab. Unknown is a list of integers, same number of elements as in seq, 1 if the word is not in the vocab and 0 if it is in the vocab. If a word is unknown, corresponding value in seq will be 0.
+        """
         seq = []
+        unk = []
         for word in self.tokenizer.tokenize(text):
             id = notfound
+            isunknown = 1
             if word in self.vocab.keys():
                 id = self.vocab[word]
+                isunknown = 0
             seq.append(id)
-        return seq
+            unk.append(isunknown)
+        return seq, unk
 
 
 def seqwindows(seq, seqlen=256, stride=128):
@@ -120,17 +130,22 @@ def recursively_list_files(path, ignore=['/.hg', '/.git']):
 
 
 def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
-    XX, YY = [], []
+    XX, YY, XXu, YYu = [], [], [], []
     t2s = Text2Seq(vocab)
     files = recursively_list_files(path)
     for i, fname in enumerate(tqdm(files, ascii=True)):
         if numfiles > 0 and (i + 1) > numfiles:
             break  # Process at most `numfiles` files
         with open(fname, "r") as f:
-            seq = t2s.toseq(f.read())
+            seq, unk = t2s.toseq(f.read())
             Xi, Yi = seqwindows(seq, seqlen, stride)
+            Xui, Yui = seqwindows(unk, seqlen, stride)
             XX.append(Xi)
             YY.append(Yi)
+            XXu.append(Xui)
+            YYu.append(Yui)
     X = np.concatenate(XX)
     Y = np.concatenate(YY)
-    return X, Y
+    Xu = np.concatenate(XXu)
+    Yu = np.concatenate(YYu)
+    return X, Y, Xu, Yu

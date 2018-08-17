@@ -13,6 +13,10 @@ def test_load_vocab():
     assert vocab["HI"] == 5
     assert words[4] == "HI"
 
+    words, vocab = util.load_vocab("testdata/test_vocab.txt", 2)
+    assert len(vocab) == 3
+    assert "HI" not in vocab.keys()
+
 
 def test_load_embeddings():
     words, vocab = util.load_vocab("testdata/test_vocab.txt")
@@ -60,6 +64,7 @@ def test_Text2Seq():
     words, vocab = util.load_vocab("testdata/test_vocab.txt")
     t2s = util.Text2Seq(vocab)
     text = "    Ahoy hello world hey HI 2 1 \n meow"
-    tokens = t2s.toseq(text)
+    tokens, unknown = t2s.toseq(text)
 
     assert tokens == [0, 1, 2, 0, 5, 4, 3, 0]
+    assert unknown == [1, 0, 0, 1, 0, 0, 0, 1]
