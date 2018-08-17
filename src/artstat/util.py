@@ -98,13 +98,13 @@ class Text2Seq:
         return seq, unk
 
 
-def seqwindows(seq, seqlen=256, stride=128):
+def seqwindows(seq, seqlen=256, stride=128, dtype="int32"):
     # nseq = int(math.ceil(len(seq) / stride))
 
     nseq = int(math.ceil(max(0, len(seq) - seqlen) / stride)) + 1
-    X = np.zeros((nseq, seqlen), dtype="int32")
+    X = np.zeros((nseq, seqlen), dtype=dtype)
     Y = np.copy(X)
-    seqa = np.array(seq, dtype="int32")
+    seqa = np.array(seq, dtype=dtype)
     for i in range(nseq):
         startX = i * stride
         endX = min(len(seq), startX + seqlen)
@@ -139,7 +139,7 @@ def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
         with open(fname, "r") as f:
             seq, unk = t2s.toseq(f.read())
             Xi, Yi = seqwindows(seq, seqlen, stride)
-            Xui, Yui = seqwindows(unk, seqlen, stride)
+            Xui, Yui = seqwindows(unk, seqlen, stride, dtype="float32")
             XX.append(Xi)
             YY.append(Yi)
             XXu.append(Xui)
