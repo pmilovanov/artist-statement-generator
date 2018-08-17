@@ -22,17 +22,24 @@ def printvocab(vocab):
     for word, count in sortedvocab(vocab):
         print("%30d %s" % (count, word))
 
-def writevocab(vocab, outputfile, sortwords):
+
+def writevocab(vocab, outputfile, sortwords, vocabsize):
     items = []
     if sortwords:
         items = sortedvocab(vocab)
     else:
         items = vocab.items()
 
+    covered = 0
     with open(outputfile, "w") as f:
-        for word, count in sortedvocab(vocab):
+        for i, (word, count) in enumerate(sortedvocab(vocab)):
+            if i > vocabsize:
+                break
             f.write(word)
             f.write("\n")
+            covered += count
+
+    return covered
 
 @click.command()
 @click.option("--normalize_unicode", default=True,
@@ -44,11 +51,15 @@ def writevocab(vocab, outputfile, sortwords):
 @click.option("--outputfile", default="",
               help="If provided, will write out a list of vocabulary words " \
                    "to this file, one per line.")
+@click.option("--vocabsize", default=30000,
+              help="Max words to output in vocab")
+@click.option("--output_word_counts_file", default="",
+              help="If provided, write a full histogram of word counts to this filename.")
 @click.option("--sortwords", default=True,
               help="When writing to file, sort words by frequency descending. Def: true.")
 @click.option("--quiet", default=False, help="Suppress stdout output")
 @click.argument("textpath")
-def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet):
+def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet, output_word_counts_file, vocabsize):
     """Loads texts recursively from TEXTPATH and outputs the vocabulary."""
 
     def echo(*args):
@@ -84,11 +95,11 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet)
 
     wpf = np.array(wordsperfile)
 
-
+    totaloccurrences = np.sum(wpf)
     echo("")
     echo("Total files:", i)
     echo("Unique words:", len(vocab))
-    echo("Total words:", np.sum(wpf))
+    echo("Total words:", totaloccurrences)
     echo("Max words per file:", np.max(wpf))
     echo("Avg words per file:", np.mean(wpf))
     echo("50th percentile:", np.percentile(wpf, 50.0))
@@ -98,13 +109,28 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet)
     echo("99.9th percentile:", np.percentile(wpf, 99.9))
 
     if outputfile:
-        writevocab(vocab, outputfile, sortwords)
+        covered = writevocab(vocab, outputfile, sortwords, vocabsize)
         echo("Wrote vocab to file:", outputfile)
+        echo("Vocab size:", vocabsize)
+        echo("Ocurrences covered:", covered)
+        echo("Coverage: %.2f%%" % (100.0 * covered / totaloccurrences))
+    elif output_word_counts_file:
+        hist = dict()  # word count histogram
+        for word, count in vocab.items():
+            if count not in hist.keys():
+                hist[count] = 0
+            hist[count] += 1
+        sortedhist = sorted(hist.items(), key=(lambda x: x[0]))
+        with open(output_word_counts_file, "w") as f:
+            wordsum = 0
+            for k, v in sortedhist:
+                wordsum += v
+                f.write("%20d : %15d %15d\n" % (k, v, wordsum))
+        echo("Wrote word counts to file:", output_word_counts_file)
     else:
         if not quiet:
             printvocab(vocab)
-                  
-    pass
+
 
 if __name__=="__main__":
     main()
