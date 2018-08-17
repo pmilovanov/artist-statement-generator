@@ -14,7 +14,7 @@ def test_load_vocab():
     assert words[4] == "HI"
 
     words, vocab = util.load_vocab("testdata/test_vocab.txt", 2)
-    assert len(vocab) == 3
+    assert len(vocab) == 2
     assert "HI" not in vocab.keys()
 
 
