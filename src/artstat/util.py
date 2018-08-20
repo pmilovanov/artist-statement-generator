@@ -18,6 +18,7 @@ def load_vocab(filename, maxwords=0):
     vocab = dict()
     words = []
     counter = 1  # start off with 1 so that embedding matrix's first vector is zero and second is for unknown
+    words.append("<PAD>")
     with open(filename, "r") as f:
         for i, line in enumerate(f):
             if maxwords > 0 and i + 1 > maxwords:
