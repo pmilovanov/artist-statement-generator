@@ -8,6 +8,7 @@ from nltk import WordPunctTokenizer
 from tqdm import tqdm
 from unidecode import unidecode
 
+FLOATX = "float32"
 
 def load_vocab(filename, maxwords=0):
     """
@@ -40,7 +41,7 @@ def load_embeddings(vocab, dim, filename):
     :param filename: file where each line is a word followed by `dim` floats, all space-separated
     :return: MxN = (len(vocab)+1) x dim numpy embedding matrix. The +1 for M is because 0th vector is a zero vector for padding.
     """
-    em = np.zeros((len(vocab) + 1, dim), dtype="float16")
+    em = np.zeros((len(vocab) + 1, dim), dtype="float32")
 
     with open(filename, "r") as f:
         for linenum, line in enumerate(f):
@@ -53,7 +54,7 @@ def load_embeddings(vocab, dim, filename):
                 continue
             i = vocab[word]
 
-            em[i, :] = np.array(line.strip().split()[1:], dtype="float16")
+            em[i, :] = np.array(line.strip().split()[1:], dtype="float32")
 
     return em
 
@@ -140,7 +141,7 @@ def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
         with open(fname, "r") as f:
             seq, unk = t2s.toseq(f.read())
             Xi, Yi = seqwindows(seq, seqlen, stride)
-            Xui, Yui = seqwindows(unk, seqlen, stride, dtype="float16")
+            Xui, Yui = seqwindows(unk, seqlen, stride, dtype="float32")
             XX.append(Xi)
             YY.append(Yi)
             XXu.append(Xui)

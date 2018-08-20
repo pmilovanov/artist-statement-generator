@@ -27,7 +27,7 @@ def test_load_embeddings():
                          [5.1, -5.2, 5.3],
                          [-2.1, 2.2, -2.3],
                          [-3.1, 3.2, 3.333],
-                         [10.0, 20.0, 30.0]], dtype="float16")
+                         [10.0, 20.0, 30.0]], dtype="float32")
 
     assert np.array_equal(expected, em)
 
