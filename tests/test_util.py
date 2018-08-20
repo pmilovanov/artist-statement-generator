@@ -6,12 +6,12 @@ from artstat.util import CustomTokenizer
 
 def test_load_vocab():
     words, vocab = util.load_vocab("testdata/test_vocab.txt")
-    assert len(words) == 5
+    assert len(words) == 6
     assert len(vocab) == 5
-    assert words[0] == "hello"
+    assert words[1] == "hello"
     assert vocab["hello"] == 1
     assert vocab["HI"] == 5
-    assert words[4] == "HI"
+    assert words[5] == "HI"
 
     words, vocab = util.load_vocab("testdata/test_vocab.txt", 2)
     assert len(vocab) == 2
@@ -27,7 +27,7 @@ def test_load_embeddings():
                          [5.1, -5.2, 5.3],
                          [-2.1, 2.2, -2.3],
                          [-3.1, 3.2, 3.333],
-                         [10.0, 20.0, 30.0]], dtype="float32")
+                         [10.0, 20.0, 30.0]], dtype="float16")
 
     assert np.array_equal(expected, em)
 
