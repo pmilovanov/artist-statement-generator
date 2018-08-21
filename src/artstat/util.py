@@ -193,11 +193,41 @@ class ShiftByOneSequence(Sequence):
         return self.len
 
 
+class ShiftByOnePermutedSequence(Sequence):
+    def __init__(self, data, seqlen, batch_size, permutation_map):
+        self.data = data  # just an N-sized array of ints
+        self.seqlen = seqlen
+        self.batch_size = batch_size
+        self.len = len(data) - seqlen * batch_size
+        self.permutation_map = permutation_map
+
+    def __getitem__(self, index):
+        X = np.zeros((self.batch_size, self.seqlen))
+        Y = np.zeros((self.batch_size, 1))
+        for i in range(self.batch_size):
+            j = index + i * self.batch_size
+            mapped_index = self.permutation_map[j]
+            X[i, :] = self.data[mapped_index: mapped_index + self.seqlen]
+            Y[i, 0] = seld.data[mapped_index + self.seqlen + 1]
+        return X, Y
+
+    def __len__(self):
+        return self.len
+
 class SpecialSequence(Sequence):
     def __init__(self, dataX, dataXu, seqlen, batch_size):
         assert len(dataX) == len(dataXu)
-        self.seqX = ShiftByOneSequence(dataX, seqlen, batch_size)
-        self.seqXu = ShiftByOneSequence(dataXu, seqlen, batch_size)
+        self.datalen = len(dataX)
+        self.seqlen = seqlen
+        self.batch_size = batch_size
+        self.new_permutation_map()
+        self.seqX = ShiftByOnePermutedSequence(dataX, seqlen, batch_size, self.permutation_map)
+        self.seqXu = ShiftByOnePermutedSequence(dataXu, seqlen, batch_size, self.permutation_map)
+
+        self.batch_size = batch_size
+
+    def new_permutation_map(self):
+        self.permutation_map = np.random.permutation(self.datalen - self.seqlen - 1)
 
     def __getitem__(self, index):
         X, Y = self.seqX[index]
@@ -209,3 +239,9 @@ class SpecialSequence(Sequence):
 
     def __len__(self):
         return len(self.seqX)
+
+    def on_epoch_end(self):
+        super().on_epoch_end()
+        self.new_permutation_map()
+        self.seqX.permutation_map = self.permutation_map
+        self.seqXu.permutation_map = self.permutation_map
