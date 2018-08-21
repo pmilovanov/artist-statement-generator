@@ -198,17 +198,22 @@ class ShiftByOnePermutedSequence(Sequence):
         self.data = data  # just an N-sized array of ints
         self.seqlen = seqlen
         self.batch_size = batch_size
-        self.len = len(data) - seqlen * batch_size
+        self.len = len(data) - seqlen * batch_size - 1
         self.permutation_map = permutation_map
 
     def __getitem__(self, index):
         X = np.zeros((self.batch_size, self.seqlen))
         Y = np.zeros((self.batch_size, 1))
         for i in range(self.batch_size):
-            j = index + i * self.batch_size
+            j = index + i * self.seqlen
+            if j > len(self.permutation_map):
+                print("index", index)
+                print("i", i)
+                print("j", j)
+                print("len pm", len(self.permutation_map))
             mapped_index = self.permutation_map[j]
             X[i, :] = self.data[mapped_index: mapped_index + self.seqlen]
-            Y[i, 0] = seld.data[mapped_index + self.seqlen + 1]
+            Y[i, 0] = self.data[mapped_index + self.seqlen + 1]
         return X, Y
 
     def __len__(self):
