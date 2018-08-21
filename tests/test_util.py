@@ -68,3 +68,23 @@ def test_Text2Seq():
 
     assert tokens == [0, 1, 2, 0, 5, 4, 3, 0]
     assert unknown == [1, 0, 0, 1, 0, 0, 0, 1]
+
+
+def test_ShiftByOneSequence():
+    data = np.arange(24)
+    seq = util.ShiftByOneSequence(data, 3, 3)
+
+    assert len(seq) == 15
+
+    assert np.array_equal(seq[14][0],
+                          np.array([[14, 15, 16],
+                                    [17, 18, 19],
+                                    [20, 21, 22]]))
+    assert np.array_equal(seq[14][1],
+                          np.array([[17], [20], [23]]))
+    assert np.array_equal(seq[0][0],
+                          np.array([[0, 1, 2],
+                                    [3, 4, 5],
+                                    [6, 7, 8]]))
+    assert np.array_equal(seq[0][1],
+                          np.array([[3], [6], [9]]))

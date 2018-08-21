@@ -4,11 +4,13 @@ import os
 
 import numpy as np
 import regex as re
+from keras.utils import Sequence
 from nltk import WordPunctTokenizer
 from tqdm import tqdm
 from unidecode import unidecode
 
 FLOATX = "float32"
+
 
 def load_vocab(filename, maxwords=0):
     """
@@ -131,6 +133,7 @@ def recursively_list_files(path, ignore=['/.hg', '/.git']):
                 results.append(os.path.join(root, filename))
     return results
 
+
 def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
     XX, YY, XXu, YYu = [], [], [], []
     t2s = Text2Seq(vocab)
@@ -151,3 +154,40 @@ def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
     Xu = np.concatenate(XXu)
     Yu = np.concatenate(YYu)
     return X, Y, Xu, Yu
+
+
+def load_data(path, vocab, pad=32, numfiles=0):
+    X, Xu = [], []
+    t2s = Text2Seq(vocab)
+    files = recursively_list_files(path)
+    apad = np.array(np.zeros(pad))
+    for i, fname in enumerate(tqdm(files, ascii=True)):
+        if numfiles > 0 and (i + 1) > numfiles:
+            break  # Process at most `numfiles` files
+        with open(fname, "r") as f:
+            seq, unk = t2s.toseq(f.read())
+            X.extend(seq)
+            Xu.extend(unk)
+            X.extend([0] * pad)
+            Xu.extend([0] * pad)
+
+    X = np.array(X, dtype="int32")
+    Xu = np.array(Xu, dtype="float32")
+    return X, Xu
+
+
+class ShiftByOneSequence(Sequence):
+    def __init__(self, data, seqlen, batch_size):
+        self.data = data  # just an N-sized array of ints
+        self.seqlen = seqlen
+        self.batch_size = batch_size
+        self.len = len(data) - seqlen * batch_size
+
+    def __getitem__(self, index):
+        seq = self.data[index: index + self.seqlen * self.batch_size + 1]
+        X = np.reshape(seq[:-1], (self.batch_size, self.seqlen))
+        Y = np.expand_dims(seq[[(i + 1) * self.seqlen for i in range(self.batch_size)]], -1)
+        return X, Y
+
+    def __len__(self):
+        return self.len
