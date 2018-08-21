@@ -191,3 +191,21 @@ class ShiftByOneSequence(Sequence):
 
     def __len__(self):
         return self.len
+
+
+class SpecialSequence(Sequence):
+    def __init__(self, dataX, dataXu, seqlen, batch_size):
+        assert len(dataX) == len(dataXu)
+        self.seqX = ShiftByOneSequence(dataX, seqlen, batch_size)
+        self.seqXu = ShiftByOneSequence(dataXu, seqlen, batch_size)
+
+    def __getitem__(self, index):
+        X, Y = self.seqX[index]
+        Xu, Yu = self.seqXu[index]
+
+        Yfake = np.zeros(Yu.shape, dtype=FLOATX)
+
+        return [X, Xu, Y, Yu], [Yfake]
+
+    def __len__(self):
+        return len(self.seqX)
