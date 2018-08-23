@@ -74,7 +74,7 @@ def test_ShiftByOneSequence():
     data = np.arange(24)
     seq = util.ShiftByOneSequence(data, 3, 3)
 
-    assert len(seq) == 15
+    assert len(seq) == 14
 
     assert np.array_equal(seq[14][0],
                           np.array([[14, 15, 16],
@@ -88,3 +88,59 @@ def test_ShiftByOneSequence():
                                     [6, 7, 8]]))
     assert np.array_equal(seq[0][1],
                           np.array([[3], [6], [9]]))
+
+
+def test_ShiftByOnePermutedSequence():
+    data = np.arange(24)
+    seq = util.ShiftByOnePermutedSequence(data, 3, 3, range(20))
+
+    assert len(seq) == 14
+
+    assert np.array_equal(seq[14][0],
+                          np.array([[14, 15, 16],
+                                    [17, 18, 19],
+                                    [20, 21, 22]]))
+    assert np.array_equal(seq[14][1],
+                          np.array([[17], [20], [23]]))
+    assert np.array_equal(seq[0][0],
+                          np.array([[0, 1, 2],
+                                    [3, 4, 5],
+                                    [6, 7, 8]]))
+    assert np.array_equal(seq[0][1],
+                          np.array([[3], [6], [9]]))
+
+
+def test_NegativeSamplingPermutedSequence():
+    np.random.seed(0)
+
+    X = list(range(100))
+    Xu = [1, 0, 0, 0, 0] * 20
+    seqlen = 5
+    batch_size = 3
+    sample_size = 5
+    vocab_size = 5000
+    permutation_map = list(range(94))
+
+    nss = util.NegativeSamplingPermutedSequence(X, Xu, seqlen, batch_size,
+                                                sample_size, vocab_size,
+                                                permutation_map=permutation_map)
+
+    assert len(nss) == 84
+
+    [rX, rXu, rI], [rY] = nss[0]
+
+    assert np.array_equal(rX,
+                          np.array([[0., 1., 2., 3., 4.],
+                                    [5., 6., 7., 8., 9.],
+                                    [10., 11., 12., 13., 14.]])
+                          )
+    assert np.array_equal(rXu,
+                          np.array([[1., 0., 0., 0., 0.],
+                                    [1., 0., 0., 0., 0.],
+                                    [1., 0., 0., 0., 0.]]))
+    assert np.array_equal(rI,
+                          np.array([[6, 2732, 2607, 1653, 3264],
+                                    [11, 4931, 4859, 1033, 4373],
+                                    [16, 3468, 705, 2599, 2135]], dtype='int32'))
+
+    pass
