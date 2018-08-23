@@ -219,6 +219,7 @@ class ShiftByOnePermutedSequence(Sequence):
     def __len__(self):
         return self.len
 
+
 class SpecialSequence(Sequence):
     def __init__(self, dataX, dataXu, seqlen, batch_size):
         assert len(dataX) == len(dataXu)
@@ -267,15 +268,80 @@ class NegativeSamplingPermutedSequence(Sequence):
     """
 
     def __init__(self,
-                 data,
+                 dataX,
+                 dataXu,
                  seqlen,
                  batch_size,
                  sample_size,
-                 permutation_map=None):
-        self.data = data
+                 vocab_size,
+                 permutation_map=None,
+                 new_permutation_map_on_epoch_end=True):
+        """
+
+        Args:
+            dataX:
+            dataXu:
+            seqlen:
+            batch_size:
+            sample_size:
+            vocab_size: Important: output sample_indices will contain index `vocab_size`, standing for <UNKNOWN>
+            permutation_map:
+            new_permutation_map_on_epoch_end:
+        """
+        self.dataX = dataX
+        self.dataXu = dataXu
         self.seqlen = seqlen
         self.batch_size = batch_size
         self.sample_size = sample_size
-        self.permutation_map = permutation_map
+        self.vocab_size = vocab_size
+        self.new_permutation_map_on_epoch_end = new_permutation_map_on_epoch_end
 
-    pass
+        if permutation_map:
+            self.permutation_map = permutation_map
+        else:
+            self.permutation_map = self.gen_permutation_map()
+
+        self.seqX = ShiftByOnePermutedSequence(self.dataX, self.seqlen, self.batch_size, self.permutation_map)
+        self.seqXu = ShiftByOnePermutedSequence(self.dataXu, self.seqlen, self.batch_size, self.permutation_map)
+
+    def gen_permutation_map(self):
+        return np.random.permutation(len(self.dataX) - self.seqlen - 1)
+
+    def on_epoch_end(self):
+        super().on_epoch_end()
+        if self.new_permutation_map_on_epoch_end:
+            self.permutation_map = self.gen_permutation_map()
+            self.seqX.permutation_map = self.permutation_map
+            self.seqXu.permutation_map = self.permutation_map
+
+    def __getitem__(self, index):
+        """
+
+        Args:
+            index:
+
+        Returns:
+            X = [seq, is_unknown, sample_indices]
+            Y = [[1] + [0]*sample_size]
+        """
+        aX, aY = self.seqX[index]
+        aXu, aYu = self.seqXu[index]
+
+        sample_indices = np.zeros((self.batch_size, self.sample_size), dtype="int32")
+        Y = np.zeros((self.batch_size, self.sample_size), dtype="int32")
+        Y[:, 0] = 1
+
+        for i in range(aY.shape[0]):
+            correct_word = aY[i][0]
+            if aYu[i][0] != 1:
+                correct_word = self.vocab_size  # this artificial index stands for "unknown"
+            wrong_words = np.zeros((self.sample_size - 1,), dtype="int32") - 1
+            while -1 in wrong_words or correct_word in wrong_words:
+                wrong_words = np.random.randint(self.vocab_size + 1)
+                sample_indices[i][0] = correct_word
+                sample_indices[i][1:] = wrong_words
+
+        return [[aX, aXu, sample_indices], [Y]]
+
+    def __len__(self):
+        pass
