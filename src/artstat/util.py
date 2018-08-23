@@ -250,3 +250,32 @@ class SpecialSequence(Sequence):
         self.new_permutation_map()
         self.seqX.permutation_map = self.permutation_map
         self.seqXu.permutation_map = self.permutation_map
+
+
+class NegativeSamplingPermutedSequence(Sequence):
+    """
+    Takes a sequence of ints.
+    Produces batches of (i.e add a batch axis at the start):
+    X = [seq, is_unknown, sample_indices]
+    Y = [[1] + [0]*sample_size]
+
+    where
+    sample_size: size of sample including one positive example and `sample_size-1` negative examples.
+    seq: subsequence of `data` of size `seqlen`
+    is_unknown: same size as seq, 0/1 values for whether the i-th word in seq is unknown/known. If 1, then corresponding value in seq should be 0
+    sample_indices: array of ints of size `sample_size`, indices of words in the sample. First index corresponds to the positive word in ground truth, the rest to negative. Corresponding values in `Y` will always be e.g [1,0,0,0,0] for `sample_size==5`.
+    """
+
+    def __init__(self,
+                 data,
+                 seqlen,
+                 batch_size,
+                 sample_size,
+                 permutation_map=None):
+        self.data = data
+        self.seqlen = seqlen
+        self.batch_size = batch_size
+        self.sample_size = sample_size
+        self.permutation_map = permutation_map
+
+    pass
