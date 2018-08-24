@@ -38,10 +38,15 @@ def load_vocab(filename, maxwords=0):
 def load_embeddings(vocab, dim, filename):
     """
     Load a subset of embedding vectors from file corresponding to vocabulary provided.
-    :param vocab: string->int map from words to their ids (id corresponds to vector's row in the resulting embedding matrix). All ids > 0.
-    :param dim: embedding vector dimension
-    :param filename: file where each line is a word followed by `dim` floats, all space-separated
-    :return: MxN = (len(vocab)+1) x dim numpy embedding matrix. The +1 for M is because 0th vector is a zero vector for padding.
+    Args:
+        vocab: string->int map from words to their ids (id corresponds to vector's row in the resulting embedding
+             matrix). All ids > 0.
+        dim: embedding vector dimension
+        filename: file where each line is a word followed by `dim` floats, all space-separated
+
+    Returns:
+        MxN = (len(vocab)+1) x dim numpy embedding matrix.
+        The +1 for M is because 0th vector is a zero vector for padding.
     """
     em = np.zeros((len(vocab) + 1, dim), dtype="float32")
 
@@ -88,7 +93,15 @@ class Text2Seq:
 
     def toseq(self, text, notfound=0):
         """
-        :return: seq, unknown. Seq is a list of integers, word indices in the vocab. Unknown is a list of integers, same number of elements as in seq, 1 if the word is not in the vocab and 0 if it is in the vocab. If a word is unknown, corresponding value in seq will be 0.
+        Converts a string to a sequence of token ids.
+        Args:
+            text:
+            notfound:
+
+        Returns:
+            seq, unknown. Seq is a list of integers, word indices in the vocab. Unknown is a list of integers,
+            same number of elements as in seq, 1 if the word is not in the vocab and 0 if it is in the vocab. If a word
+            is unknown, corresponding value in seq will be 0.
         """
         seq = []
         unk = []
@@ -120,8 +133,10 @@ def seqwindows(seq, seqlen=256, stride=128, dtype="int32"):
     return X, Y
 
 
-def recursively_list_files(path, ignore=['/.hg', '/.git']):
+def recursively_list_files(path, ignore=None):
     """Recursively list files under a directory, excluding filenames containing strings in the `ignore` list."""
+    if ignore is None:
+        ignore = ['/.hg', '/.git']
     results = []
     for root, dirs, files in os.walk(path):
         for filename in files:
@@ -181,7 +196,7 @@ class ShiftByOneSequence(Sequence):
         self.data = data  # just an N-sized array of ints
         self.seqlen = seqlen
         self.batch_size = batch_size
-        self.len = len(data) - seqlen * batch_size - 1
+        self.len = len(data) - seqlen * batch_size
 
     def __getitem__(self, index):
         seq = self.data[index: index + self.seqlen * self.batch_size + 1]
@@ -195,10 +210,18 @@ class ShiftByOneSequence(Sequence):
 
 class ShiftByOnePermutedSequence(Sequence):
     def __init__(self, data, seqlen, batch_size, permutation_map):
+        """
+
+        Args:
+            data:
+            seqlen:
+            batch_size:
+            permutation_map: `len(data) - seqlen`-sized list of ints
+        """
         self.data = data  # just an N-sized array of ints
         self.seqlen = seqlen
         self.batch_size = batch_size
-        self.len = len(data) - seqlen * batch_size - 1
+        self.len = len(data) - seqlen * batch_size
         self.permutation_map = permutation_map
 
     def __getitem__(self, index):
@@ -213,7 +236,7 @@ class ShiftByOnePermutedSequence(Sequence):
                 print("len pm", len(self.permutation_map))
             mapped_index = self.permutation_map[j]
             X[i, :] = self.data[mapped_index: mapped_index + self.seqlen]
-            Y[i, 0] = self.data[mapped_index + self.seqlen + 1]
+            Y[i, 0] = self.data[mapped_index + self.seqlen]
         return X, Y
 
     def __len__(self):
@@ -221,19 +244,19 @@ class ShiftByOnePermutedSequence(Sequence):
 
 
 class SpecialSequence(Sequence):
-    def __init__(self, dataX, dataXu, seqlen, batch_size):
-        assert len(dataX) == len(dataXu)
-        self.datalen = len(dataX)
+    def __init__(self, data_x, data_xu, seqlen, batch_size):
+        assert len(data_x) == len(data_xu)
+        self.datalen = len(data_x)
         self.seqlen = seqlen
         self.batch_size = batch_size
         self.new_permutation_map()
-        self.seqX = ShiftByOnePermutedSequence(dataX, seqlen, batch_size, self.permutation_map)
-        self.seqXu = ShiftByOnePermutedSequence(dataXu, seqlen, batch_size, self.permutation_map)
+        self.seqX = ShiftByOnePermutedSequence(data_x, seqlen, batch_size, self.permutation_map)
+        self.seqXu = ShiftByOnePermutedSequence(data_xu, seqlen, batch_size, self.permutation_map)
 
         self.batch_size = batch_size
 
     def new_permutation_map(self):
-        self.permutation_map = np.random.permutation(self.datalen - self.seqlen - 1)
+        self.permutation_map = np.random.permutation(self.datalen - self.seqlen)
 
     def __getitem__(self, index):
         X, Y = self.seqX[index]
@@ -263,13 +286,16 @@ class NegativeSamplingPermutedSequence(Sequence):
     where
     sample_size: size of sample including one positive example and `sample_size-1` negative examples.
     seq: subsequence of `data` of size `seqlen`
-    is_unknown: same size as seq, 0/1 values for whether the i-th word in seq is unknown/known. If 1, then corresponding value in seq should be 0
-    sample_indices: array of ints of size `sample_size`, indices of words in the sample. First index corresponds to the positive word in ground truth, the rest to negative. Corresponding values in `Y` will always be e.g [1,0,0,0,0] for `sample_size==5`.
+    is_unknown: same size as seq, 0/1 values for whether the i-th word in seq is unknown/known. If 1, then
+        corresponding value in seq should be 0
+    sample_indices: array of ints of size `sample_size`, indices of words in the sample. First index corresponds to the
+        positive word in ground truth, the rest to negative. Corresponding values in `Y` will always be e.g
+        [1,0,0,0,0] for `sample_size==5`.
     """
 
     def __init__(self,
-                 dataX,
-                 dataXu,
+                 data_x,
+                 data_xu,
                  seqlen,
                  batch_size,
                  sample_size,
@@ -279,17 +305,17 @@ class NegativeSamplingPermutedSequence(Sequence):
         """
 
         Args:
-            dataX:
-            dataXu:
+            data_x:
+            data_xu:
             seqlen:
             batch_size:
             sample_size:
             vocab_size: Important: output sample_indices will contain index `vocab_size`, standing for <UNKNOWN>
-            permutation_map:
+            permutation_map: `(len(data_x) - seqlen)`-sized list of ints
             new_permutation_map_on_epoch_end:
         """
-        self.dataX = dataX
-        self.dataXu = dataXu
+        self.dataX = data_x
+        self.dataXu = data_xu
         self.seqlen = seqlen
         self.batch_size = batch_size
         self.sample_size = sample_size
@@ -305,7 +331,7 @@ class NegativeSamplingPermutedSequence(Sequence):
         self.seqXu = ShiftByOnePermutedSequence(self.dataXu, self.seqlen, self.batch_size, self.permutation_map)
 
     def gen_permutation_map(self):
-        return np.random.permutation(len(self.dataX) - self.seqlen - 1)
+        return np.random.permutation(len(self.dataX) - self.seqlen)
 
     def on_epoch_end(self):
         super().on_epoch_end()
@@ -331,14 +357,10 @@ class NegativeSamplingPermutedSequence(Sequence):
         Y = np.zeros((self.batch_size, self.sample_size), dtype="int32")
         Y[:, 0] = 1
 
-
         for i in range(aY.shape[0]):
             correct_word = aY[i][0]
             if aYu[i][0] == 1:
                 correct_word = self.vocab_size  # this artificial index stands for "unknown"
-            wrong_words = np.zeros((self.sample_size - 1,), dtype="int32")
-            print(type(wrong_words))
-            print(type(correct_word))
 
             while True:
                 wrong_words = np.random.randint(self.vocab_size + 1, size=self.sample_size - 1)
@@ -346,7 +368,6 @@ class NegativeSamplingPermutedSequence(Sequence):
                     break
             sample_indices[i][0] = correct_word
             sample_indices[i][1:] = wrong_words
-
 
         return [[aX, aXu, sample_indices], [Y]]
 

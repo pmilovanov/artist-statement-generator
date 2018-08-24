@@ -1,4 +1,6 @@
 import numpy as np
+from numpy import array
+from numpy.testing import assert_equal
 
 from artstat import util
 from artstat.util import CustomTokenizer
@@ -22,14 +24,12 @@ def test_load_embeddings():
     words, vocab = util.load_vocab("testdata/test_vocab.txt")
     em = util.load_embeddings(vocab, 3, "testdata/test_embedding.txt")
 
-    expected = np.array([[0.0, 0.0, 0.0],
-                         [4.1, 4.2, 4.3],
-                         [5.1, -5.2, 5.3],
-                         [-2.1, 2.2, -2.3],
-                         [-3.1, 3.2, 3.333],
-                         [10.0, 20.0, 30.0]], dtype="float32")
-
-    assert np.array_equal(expected, em)
+    assert_equal(em, array([[0.0, 0.0, 0.0],
+                            [4.1, 4.2, 4.3],
+                            [5.1, -5.2, 5.3],
+                            [-2.1, 2.2, -2.3],
+                            [-3.1, 3.2, 3.333],
+                            [10.0, 20.0, 30.0]], dtype="float32"))
 
 
 # path_glove = "/home/pmilovanov/data/glove/glove.840B.300d.txt"
@@ -50,17 +50,17 @@ def test_custom_tokenizer():
 def test_seqwindows():
     seq = list(range(2, 8))
     X, Y = util.seqwindows(seq, 3, 2)
-    Xe = np.array([[2, 3, 4],
-                   [4, 5, 6],
-                   [6, 7, 0]], dtype="int32")
-    Ye = np.array([[3, 4, 5],
-                   [5, 6, 7],
-                   [7, 0, 0]], dtype="int32")
-    assert np.array_equal(Xe, X)
-    assert np.array_equal(Ye, Y)
+    Xe = array([[2, 3, 4],
+                [4, 5, 6],
+                [6, 7, 0]], dtype="int32")
+    Ye = array([[3, 4, 5],
+                [5, 6, 7],
+                [7, 0, 0]], dtype="int32")
+    assert_equal(Xe, X)
+    assert_equal(Ye, Y)
 
 
-def test_Text2Seq():
+def test_text2seq():
     words, vocab = util.load_vocab("testdata/test_vocab.txt")
     t2s = util.Text2Seq(vocab)
     text = "    Ahoy hello world hey HI 2 1 \n meow"
@@ -70,51 +70,52 @@ def test_Text2Seq():
     assert unknown == [1, 0, 0, 1, 0, 0, 0, 1]
 
 
-def test_ShiftByOneSequence():
+def test_shift_by_one_sequence():
     data = np.arange(24)
     seq = util.ShiftByOneSequence(data, 3, 3)
 
-    assert len(seq) == 14
+    assert 15 == len(seq)
 
-    assert np.array_equal(seq[14][0],
-                          np.array([[14, 15, 16],
-                                    [17, 18, 19],
-                                    [20, 21, 22]]))
-    assert np.array_equal(seq[14][1],
-                          np.array([[17], [20], [23]]))
-    assert np.array_equal(seq[0][0],
-                          np.array([[0, 1, 2],
-                                    [3, 4, 5],
-                                    [6, 7, 8]]))
-    assert np.array_equal(seq[0][1],
-                          np.array([[3], [6], [9]]))
+    assert_equal(seq[14][0],
+                 array([[14, 15, 16],
+                        [17, 18, 19],
+                        [20, 21, 22]]))
+    assert_equal(seq[14][1],
+                 array([[17], [20], [23]]))
+    assert_equal(seq[0][0],
+                 array([[0, 1, 2],
+                        [3, 4, 5],
+                        [6, 7, 8]]))
+    assert_equal(seq[0][1],
+                 array([[3], [6], [9]]))
 
 
-def test_ShiftByOnePermutedSequence():
+def test_shift_by_one_permuted_sequence():
     data = np.arange(24)
-    seq = util.ShiftByOnePermutedSequence(data, 3, 3, range(20))
+    seq = util.ShiftByOnePermutedSequence(data, 3, 3, range(21))
 
-    assert len(seq) == 14
+    assert 15 == len(seq)
 
-    assert np.array_equal(seq[14][0],
-                          np.array([[14, 15, 16],
-                                    [17, 18, 19],
-                                    [20, 21, 22]]))
-    assert np.array_equal(seq[14][1],
-                          np.array([[17], [20], [23]]))
-    assert np.array_equal(seq[0][0],
-                          np.array([[0, 1, 2],
-                                    [3, 4, 5],
-                                    [6, 7, 8]]))
-    assert np.array_equal(seq[0][1],
-                          np.array([[3], [6], [9]]))
+    assert_equal(seq[14][0],
+                 array([[14, 15, 16],
+                        [17, 18, 19],
+                        [20, 21, 22]]))
+
+    assert_equal(seq[14][1],
+                 array([[17], [20], [23]]))
+    assert_equal(seq[0][0],
+                 array([[0, 1, 2],
+                        [3, 4, 5],
+                        [6, 7, 8]]))
+    assert_equal(seq[0][1],
+                 array([[3], [6], [9]]))
 
 
-def test_NegativeSamplingPermutedSequence():
+def test_negative_sampling_permuted_sequence():
     np.random.seed(0)
 
     X = list(range(100))
-    Xu = [1, 0, 0, 0, 0] * 20
+    Xu = [0, 0, 1, 0, 0] * 20
     seqlen = 5
     batch_size = 3
     sample_size = 5
@@ -125,22 +126,22 @@ def test_NegativeSamplingPermutedSequence():
                                                 sample_size, vocab_size,
                                                 permutation_map=permutation_map)
 
-    assert len(nss) == 84
+    assert 85 == len(nss)
 
     [rX, rXu, rI], [rY] = nss[0]
 
-    assert np.array_equal(rX,
-                          np.array([[0., 1., 2., 3., 4.],
-                                    [5., 6., 7., 8., 9.],
-                                    [10., 11., 12., 13., 14.]])
-                          )
-    assert np.array_equal(rXu,
-                          np.array([[1., 0., 0., 0., 0.],
-                                    [1., 0., 0., 0., 0.],
-                                    [1., 0., 0., 0., 0.]]))
-    assert np.array_equal(rI,
-                          np.array([[6, 2732, 2607, 1653, 3264],
-                                    [11, 4931, 4859, 1033, 4373],
-                                    [16, 3468, 705, 2599, 2135]], dtype='int32'))
+    assert_equal(rX,
+                 array([[0., 1., 2., 3., 4.],
+                        [5., 6., 7., 8., 9.],
+                        [10., 11., 12., 13., 14.]])
+                 )
+    assert_equal(rXu,
+                 array([[0., 0., 1., 0., 0.],
+                        [0., 0., 1., 0., 0.],
+                        [0., 0., 1., 0., 0.]]))
+    assert_equal(rI,
+                 array([[5, 2732, 2607, 1653, 3264],
+                        [10, 4931, 4859, 1033, 4373],
+                        [15, 3468, 705, 2599, 2135]], dtype='int32'))
 
     pass
