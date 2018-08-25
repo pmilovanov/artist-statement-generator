@@ -171,7 +171,7 @@ def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
     return X, Y, Xu, Yu
 
 
-def load_data(path, vocab, pad=32, numfiles=0):
+def load_data(path, vocab, pad=32, numfiles=0, lowercase=False):
     X, Xu = [], []
     t2s = Text2Seq(vocab)
     files = recursively_list_files(path)
@@ -180,7 +180,10 @@ def load_data(path, vocab, pad=32, numfiles=0):
         if numfiles > 0 and (i + 1) > numfiles:
             break  # Process at most `numfiles` files
         with open(fname, "r") as f:
-            seq, unk = t2s.toseq(f.read())
+            text = f.read()
+            if lowercase:
+                text = text.lower()
+            seq, unk = t2s.toseq(text)
             X.extend(seq)
             Xu.extend(unk)
             X.extend([0] * pad)

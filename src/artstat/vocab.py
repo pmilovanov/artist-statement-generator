@@ -57,9 +57,12 @@ def writevocab(vocab, outputfile, sortwords, vocabsize):
               help="If provided, write a full histogram of word counts to this filename.")
 @click.option("--sortwords", default=True,
               help="When writing to file, sort words by frequency descending. Def: true.")
+@click.option("--lowercase", default=False,
+              help="Generate lowercase words only.")
 @click.option("--quiet", default=False, help="Suppress stdout output")
 @click.argument("textpath")
-def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet, output_word_counts_file, vocabsize):
+def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet, output_word_counts_file, vocabsize,
+         lowercase):
     """Loads texts recursively from TEXTPATH and outputs the vocabulary."""
 
     def echo(*args):
@@ -85,6 +88,8 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet,
             break
         with open(filename, "r") as f:
             text = f.read()
+            if lowercase:
+                text = text.lower()
             tokens = tokenizer.tokenize(text)
             if len(tokens) > maxtokens:
                 maxtokens = len(tokens)
