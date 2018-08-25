@@ -339,6 +339,7 @@ class NegativeSamplingPermutedSequence(Sequence):
     def on_epoch_end(self):
         super().on_epoch_end()
         if self.new_permutation_map_on_epoch_end:
+            print("Making new permutation map!")
             self.permutation_map = self.gen_permutation_map()
             self.seqX.permutation_map = self.permutation_map
             self.seqXu.permutation_map = self.permutation_map
