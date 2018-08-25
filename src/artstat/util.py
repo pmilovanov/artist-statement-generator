@@ -340,22 +340,8 @@ class NegativeSamplingPermutedSequence(Sequence):
             self.seqX.permutation_map = self.permutation_map
             self.seqXu.permutation_map = self.permutation_map
 
-    def __getitem__(self, index):
-        """
-
-        Args:
-            index:
-
-        Returns:
-            X = [seq, is_unknown, sample_indices]
-            Y = [[1] + [0]*sample_size]
-        """
-        aX, aY = self.seqX[index]
-        aXu, aYu = self.seqXu[index]
-
+    def make_sample_indices2(self, aY, aYu):
         sample_indices = np.zeros((self.batch_size, self.sample_size), dtype="int32")
-        Y = np.zeros((self.batch_size, self.sample_size), dtype="int32")
-        Y[:, 0] = 1
 
         for i in range(aY.shape[0]):
             correct_word = aY[i][0]
@@ -369,6 +355,49 @@ class NegativeSamplingPermutedSequence(Sequence):
             sample_indices[i][0] = correct_word
             sample_indices[i][1:] = wrong_words
 
+        return sample_indices
+
+    def make_sample_indices(self, aY, aYu):
+        sample_indices = np.zeros((self.batch_size, self.sample_size, 2), dtype="int32")
+
+        for i in range(aY.shape[0]):
+            correct_word = aY[i][0]
+            if aYu[i][0] == 1:
+                correct_word = self.vocab_size  # this artificial index stands for "unknown"
+
+            while True:
+                wrong_words = np.random.randint(self.vocab_size + 1, size=self.sample_size - 1)
+                if correct_word not in wrong_words:
+                    break
+
+            row = np.zeros((self.sample_size), dtype="int32")
+            row[0] = correct_word
+            row[1:] = wrong_words
+            batchidxs = np.ones_like(row) * i
+
+            sample_indices[i] = np.concatenate(
+                (np.expand_dims(batchidxs, axis=-1),
+                 np.expand_dims(row, axis=-1)), -1)
+
+        return sample_indices
+
+    def __getitem__(self, index):
+        """
+
+        Args:
+            index:
+
+        Returns:
+            X = [seq, is_unknown, sample_indices]
+            Y = [[1] + [0]*sample_size]
+        """
+        aX, aY = self.seqX[index]
+        aXu, aYu = self.seqXu[index]
+
+        Y = np.zeros((self.batch_size, self.sample_size), dtype="int32")
+        Y[:, 0] = 1
+
+        sample_indices = self.make_sample_indices(aY, aYu)
         return [[aX, aXu, sample_indices], [Y]]
 
     def __len__(self):
