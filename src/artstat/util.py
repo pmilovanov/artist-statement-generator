@@ -232,10 +232,12 @@ class ShiftByOnePermutedSequence(Sequence):
             permutation_map: `len(data) - seqlen`-sized list of ints
         """
         self.data = data  # N x `dim` list/array
-        self.dim = 0
-        print("TD0", type(data[0]))
-        if type(data[0]) == list:
-            self.dim = len(data[0])
+        self.dim = None
+        eltype = type(data[0])
+        if eltype == list:
+            self.dim = [len(data[0])]
+        elif eltype == np.ndarray:
+            self.dim = list(data[0].shape)
 
         self.seqlen = seqlen
         self.batch_size = batch_size
@@ -246,9 +248,9 @@ class ShiftByOnePermutedSequence(Sequence):
     def __getitem__(self, index):
         shape_x = [self.batch_size, self.seqlen]
         shape_y = [self.batch_size, 1]
-        if self.dim > 0:
-            shape_x.append(self.dim)
-            shape_y.append(self.dim)
+        if self.dim:
+            shape_x.extend(self.dim)
+            shape_y.extend(self.dim)
         X = np.zeros(tuple(shape_x), dtype=self.dtype)
         Y = np.zeros(tuple(shape_y), dtype=self.dtype)
 
@@ -352,8 +354,10 @@ class NegativeSamplingPermutedSequence(Sequence):
         else:
             self.permutation_map = self.gen_permutation_map()
 
-        self.seqX = ShiftByOnePermutedSequence(self.dataX, self.seqlen, self.batch_size, self.permutation_map)
-        self.seqXu = ShiftByOnePermutedSequence(self.dataXu, self.seqlen, self.batch_size, self.permutation_map)
+        self.seqX = ShiftByOnePermutedSequence(self.dataX, self.seqlen, self.batch_size, self.permutation_map,
+                                               dtype="float32")
+        self.seqXu = ShiftByOnePermutedSequence(self.dataXu, self.seqlen, self.batch_size, self.permutation_map,
+                                                dtype="int32")
 
     def gen_permutation_map(self):
         return np.random.permutation(len(self.dataX) - self.seqlen)
@@ -388,7 +392,7 @@ class NegativeSamplingPermutedSequence(Sequence):
 
         for i in range(aY.shape[0]):
             correct_word = aY[i][0]
-            if aYu[i][0] == 1:
+            if aYu[i, 0, 0] == 1:
                 correct_word = self.vocab_size  # this artificial index stands for "unknown"
 
             while True:
@@ -420,8 +424,14 @@ class NegativeSamplingPermutedSequence(Sequence):
         aX, aY = self.seqX[index]
         aXu, aYu = self.seqXu[index]
 
-        Y = np.zeros((self.batch_size, self.sample_size), dtype="int32")
+        aux_bits_len = aYu.shape[-1]
+
+        raYu = np.reshape(aYu, (aYu.shape[0], aYu.shape[-1]))
+
+        Y = np.zeros((self.batch_size, self.sample_size + aux_bits_len), dtype="int32")
         Y[:, 0] = 1
+
+        Y[:, -aux_bits_len:] = raYu
 
         sample_indices = self.make_sample_indices(aY, aYu)
         return [[aX, aXu, sample_indices], [Y]]

@@ -147,14 +147,16 @@ def test_shift_by_one_permuted_sequence_2():
 
     # Y
     assert_array_equal(seq[14][1],
-                       array([[17, 117], [20, 120], [23, 123]]))
+                       array([[[17, 117]],
+                              [[20, 120]],
+                              [[23, 123]]]))
 
 
 def test_negative_sampling_permuted_sequence():
     np.random.seed(0)
 
     X = list(range(100))
-    Xu = [0, 0, 1, 0, 0] * 20
+    Xu = [[0, 1], [0, 1], [1, 0], [0, 0], [0, 0]] * 20
     seqlen = 5
     batch_size = 3
     sample_size = 5
@@ -175,13 +177,18 @@ def test_negative_sampling_permuted_sequence():
                         [10., 11., 12., 13., 14.]])
                  )
     assert_equal(rXu,
-                 array([[0., 0., 1., 0., 0.],
-                        [0., 0., 1., 0., 0.],
-                        [0., 0., 1., 0., 0.]]))
+                 array([[[0, 1], [0, 1], [1, 0], [0, 0], [0, 0]],
+                        [[0, 1], [0, 1], [1, 0], [0, 0], [0, 0]],
+                        [[0, 1], [0, 1], [1, 0], [0, 0], [0, 0]]]))
     assert_equal(
         rI,
         array([[[0, 5], [0, 2732], [0, 2607], [0, 1653], [0, 3264]],
                [[1, 10], [1, 4931], [1, 4859], [1, 1033], [1, 4373]],
                [[2, 15], [2, 3468], [2, 705], [2, 2599], [2, 2135]]], dtype='int32'))
+
+    assert_equal(rY,
+                 array([[1, 0, 0, 0, 0, 0, 1],
+                        [1, 0, 0, 0, 0, 0, 1],
+                        [1, 0, 0, 0, 0, 0, 1]]))
 
     pass
