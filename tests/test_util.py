@@ -1,6 +1,6 @@
 import numpy as np
 from numpy import array
-from numpy.testing import assert_equal
+from numpy.testing import assert_equal, assert_array_equal
 
 from artstat import util
 from artstat.util import CustomTokenizer
@@ -67,7 +67,28 @@ def test_text2seq():
     tokens, unknown = t2s.toseq(text)
 
     assert tokens == [0, 1, 2, 0, 5, 4, 3, 0]
-    assert unknown == [1, 0, 0, 1, 0, 0, 0, 1]
+    assert unknown == [[1, 0], [0, 0], [0, 0], [1, 0], [0, 0], [0, 0], [0, 0], [1, 0]]
+
+
+def test_text2seq_lower():
+    words, vocab = util.load_vocab("testdata/test_vocab_lower.txt")
+    t2s = util.Text2Seq(vocab, vocab_is_lowercase=True)
+    text = "    Ahoy hello World world hey HI 2 1 \n meow"
+    tokens, aux = t2s.toseq(text)
+
+    assert_equal(tokens, [0, 1, 2, 2, 0, 5, 4, 3, 0])
+    assert_equal(aux, [[1, 1], [0, 0], [0, 1], [0, 0], [1, 0],
+                       [0, 1], [0, 0], [0, 0], [1, 0]])
+
+
+def test_load_data():
+    words, vocab = util.load_vocab("testdata/test_vocab_lower.txt")
+    X, Xu = util.load_data("testdata/dir1", vocab, pad=4, lowercase=True)
+
+    assert_equal(X, [0, 1, 2, 2, 0, 5, 4, 3, 0, 0, 0, 0, 0])
+    assert_equal(Xu, [[1, 1], [0, 0], [0, 1], [0, 0], [1, 0],
+                      [0, 1], [0, 0], [0, 0], [1, 0],
+                      [0, 0], [0, 0], [0, 0], [0, 0]])
 
 
 def test_shift_by_one_sequence():
@@ -109,6 +130,24 @@ def test_shift_by_one_permuted_sequence():
                         [6, 7, 8]]))
     assert_equal(seq[0][1],
                  array([[3], [6], [9]]))
+
+
+def test_shift_by_one_permuted_sequence_2():
+    q = np.arange(24)
+    data = np.stack([q, q + 100], axis=1)
+    seq = util.ShiftByOnePermutedSequence(data, 3, 3, range(21))
+
+    assert 15 == len(seq)
+
+    # X
+    assert_array_equal(seq[14][0],
+                       array([[[14, 114], [15, 115], [16, 116]],
+                              [[17, 117], [18, 118], [19, 119]],
+                              [[20, 120], [21, 121], [22, 122]]]))
+
+    # Y
+    assert_array_equal(seq[14][1],
+                       array([[17, 117], [20, 120], [23, 123]]))
 
 
 def test_negative_sampling_permuted_sequence():

@@ -83,13 +83,29 @@ class CustomTokenizer:
 
 
 class Text2Seq:
-    def __init__(self, vocab):
+    def __init__(self, vocab, vocab_is_lowercase=False):
         """
         Use toseq() method to convert a string to a sequence of token ids
         :param vocab: word->int map
         """
         self.vocab = vocab
+        self.vocab_is_lowercase = vocab_is_lowercase
         self.tokenizer = CustomTokenizer()
+
+    def token2vec(self, word):
+        id, aux_unknown, aux_uppercase = 0, 1, 0
+
+        if self.vocab_is_lowercase:
+            lower_word = word.lower()
+            if lower_word != word:
+                aux_uppercase = 1
+            word = lower_word
+
+        if word in self.vocab.keys():
+            id = self.vocab[word]
+            aux_unknown = 0
+
+        return id, [aux_unknown, aux_uppercase]
 
     def toseq(self, text, notfound=0):
         """
@@ -104,16 +120,13 @@ class Text2Seq:
             is unknown, corresponding value in seq will be 0.
         """
         seq = []
-        unk = []
+        aux_bits = []
         for word in self.tokenizer.tokenize(text):
-            id = notfound
-            isunknown = 1
-            if word in self.vocab.keys():
-                id = self.vocab[word]
-                isunknown = 0
+            id, aux = self.token2vec(word)
             seq.append(id)
-            unk.append(isunknown)
-        return seq, unk
+            aux_bits.append(aux)
+
+        return seq, aux_bits
 
 
 def seqwindows(seq, seqlen=256, stride=128, dtype="int32"):
@@ -173,21 +186,18 @@ def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
 
 def load_data(path, vocab, pad=32, numfiles=0, lowercase=False):
     X, Xu = [], []
-    t2s = Text2Seq(vocab)
+    t2s = Text2Seq(vocab, vocab_is_lowercase=lowercase)
     files = recursively_list_files(path)
-    apad = np.array(np.zeros(pad))
     for i, fname in enumerate(tqdm(files, ascii=True)):
         if numfiles > 0 and (i + 1) > numfiles:
             break  # Process at most `numfiles` files
         with open(fname, "r") as f:
             text = f.read()
-            if lowercase:
-                text = text.lower()
-            seq, unk = t2s.toseq(text)
+            seq, aux = t2s.toseq(text)
             X.extend(seq)
-            Xu.extend(unk)
+            Xu.extend(aux)
             X.extend([0] * pad)
-            Xu.extend([0] * pad)
+            Xu.extend([[0, 0]] * pad)
 
     X = np.array(X, dtype="int32")
     Xu = np.array(Xu, dtype="float32")
@@ -212,7 +222,7 @@ class ShiftByOneSequence(Sequence):
 
 
 class ShiftByOnePermutedSequence(Sequence):
-    def __init__(self, data, seqlen, batch_size, permutation_map):
+    def __init__(self, data, seqlen, batch_size, permutation_map, dtype="int32"):
         """
 
         Args:
@@ -221,15 +231,27 @@ class ShiftByOnePermutedSequence(Sequence):
             batch_size:
             permutation_map: `len(data) - seqlen`-sized list of ints
         """
-        self.data = data  # just an N-sized array of ints
+        self.data = data  # N x `dim` list/array
+        self.dim = 0
+        print("TD0", type(data[0]))
+        if type(data[0]) == list:
+            self.dim = len(data[0])
+
         self.seqlen = seqlen
         self.batch_size = batch_size
         self.len = len(data) - seqlen * batch_size
         self.permutation_map = permutation_map
+        self.dtype = dtype
 
     def __getitem__(self, index):
-        X = np.zeros((self.batch_size, self.seqlen))
-        Y = np.zeros((self.batch_size, 1))
+        shape_x = [self.batch_size, self.seqlen]
+        shape_y = [self.batch_size, 1]
+        if self.dim > 0:
+            shape_x.append(self.dim)
+            shape_y.append(self.dim)
+        X = np.zeros(tuple(shape_x), dtype=self.dtype)
+        Y = np.zeros(tuple(shape_y), dtype=self.dtype)
+
         for i in range(self.batch_size):
             j = index + i * self.seqlen
             if j > len(self.permutation_map):
