@@ -52,6 +52,7 @@ def load_embeddings(vocab, dim, filename):
 
     with open(filename, "r") as f:
         for linenum, line in enumerate(f):
+            line = unidecode(line)
             idx = line.find(' ')
             if idx < 0:
                 print("malformed line, no space found: line", linenum)
