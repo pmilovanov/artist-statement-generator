@@ -1,5 +1,8 @@
 FROM tensorflow/tensorflow:latest-gpu
 
+WORKDIR /app
+CMD python3 -m jupyter notebook --allow-root \
+    --ip=0.0.0.0 --notebook-dir=notebooks --port=9999
 
 RUN apt update
 
@@ -14,8 +17,15 @@ VOLUME /data/local
 
 RUN pip3 install nltk tqdm unidecode click
 
+
+RUN pip3 install regex
+
+RUN pip3 install terminado jupyter
 RUN pip3 install jupyter-emacskeys
-RUN pip3 install regexp
+
+RUN pip3 install tensorflow-gpu
 
 ENV PYTHONPATH=/app/src:$PYTHONPATH
+
+EXPOSE 9999
 
