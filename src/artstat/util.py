@@ -4,8 +4,8 @@ import os
 
 import numpy as np
 import regex as re
-from keras.utils import Sequence
 from nltk import WordPunctTokenizer
+from tensorflow.keras.utils import Sequence
 from tqdm import tqdm
 from unidecode import unidecode
 
@@ -320,14 +320,7 @@ class NegativeSamplingPermutedSequence(Sequence):
         [1,0,0,0,0] for `sample_size==5`.
     """
 
-    def __init__(self,
-                 data_x,
-                 data_xu,
-                 seqlen,
-                 batch_size,
-                 sample_size,
-                 vocab_size,
-                 permutation_map=None,
+    def __init__(self, data_x, data_xu, seqlen, batch_size, sample_size, vocab_size, permutation_map=None,
                  new_permutation_map_on_epoch_end=True):
         """
 
@@ -405,9 +398,7 @@ class NegativeSamplingPermutedSequence(Sequence):
             row[1:] = wrong_words
             batchidxs = np.ones_like(row) * i
 
-            sample_indices[i] = np.concatenate(
-                (np.expand_dims(batchidxs, axis=-1),
-                 np.expand_dims(row, axis=-1)), -1)
+            sample_indices[i] = np.concatenate((np.expand_dims(batchidxs, axis=-1), np.expand_dims(row, axis=-1)), -1)
 
         return sample_indices
 
@@ -438,3 +429,16 @@ class NegativeSamplingPermutedSequence(Sequence):
 
     def __len__(self):
         return len(self.seqX)
+
+
+def squish_distribution(scores, alpha):
+    """
+    Flatten or squish a multinomial distribution.
+    Useful to tweak sequence sampling from an RNN.
+    Args:
+        scores: output of a softmax
+        alpha: param to flatten (a < 1) or squish (a > 1)
+    """
+    s2 = np.power(scores, alpha)
+    total = np.sum(s2)
+    return s2 / total
