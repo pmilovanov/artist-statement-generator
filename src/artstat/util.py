@@ -50,7 +50,7 @@ def load_embeddings(vocab, dim, filename):
     """
     em = np.zeros((len(vocab) + 1, dim), dtype="float32")
 
-    with open(filename, "r") as f:
+    with open(filename, "r", encoding="utf-8") as f:
         for linenum, line in enumerate(f):
             line = unidecode(line)
             idx = line.find(' ')
@@ -192,7 +192,7 @@ def load_data(path, vocab, pad=32, numfiles=0, lowercase=False):
     for i, fname in enumerate(tqdm(files, ascii=True)):
         if numfiles > 0 and (i + 1) > numfiles:
             break  # Process at most `numfiles` files
-        with open(fname, "r") as f:
+        with open(fname, "r", encoding="utf-8") as f:
             text = f.read()
             seq, aux = t2s.toseq(text)
             X.extend(seq)
