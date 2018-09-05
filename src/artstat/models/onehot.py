@@ -1,3 +1,5 @@
+import math
+
 import click
 from click import option, argument
 
@@ -11,8 +13,8 @@ import numpy as np
 
 from tensorflow.keras import Model, Input
 from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
-from tensorflow.keras.layers import (Reshape, Embedding, CuDNNLSTM, BatchNormalization, Dense, Concatenate, Lambda,
-                                     Activation, Dropout)
+from tensorflow.keras.layers import (Embedding, CuDNNLSTM, BatchNormalization, Dense, Concatenate, Lambda, Activation,
+                                     Dropout)
 import tensorflow as tf
 
 
@@ -81,7 +83,13 @@ def make_predict_model(model_train):
 
 ######################################################################################################################
 file_path = click.Path(exists=True, dir_okay=False, resolve_path=True)
+write_file_path = click.Path(exists=True, dir_okay=False, resolve_path=True, writable=True)
 dir_path = click.Path(exists=True, file_okay=False, dir_okay=True, resolve_path=True)
+
+
+@click.group()
+def main():
+    pass
 
 
 def flags_resources(f):
@@ -95,31 +103,77 @@ def flags_resources(f):
     f = option("--glove_dims", required=True, type=int,
                help="Dimensionality of GloVe word embedding output vectors. Must match that in the provided "
                     "<glove_file>, e.g 300 for glove.6B.300d.txt")(f)
+    f = option("--checkpoint_dir", required=True, type=dir_path)(f)
+    f = option("--starting_model_file", type=file_path)(f)
+    return f
+
+
+def flags_shared(f):
+    f = option("--seqlen", default=64, help="Length of input sequence of words to predict from.")(f)
+    f = option("--vocab_size", default=10000, help="Only use this many words from the top of the vocabulary file.")(f)
+    f = option("--sample_size", default=10,
+               help=("Sample size to be used for negative sampling. Includes the positive example."))(f)
     return f
 
 
 def flags_hyperparams(f):
-    f = option("--seqlen", default=64, help="Length of input sequence of words to predict from.")(f)
-    f = option("--vocab_size", default=10000, help="Only use this many words from the top of the vocabulary file.")(f)
+    f = option("--lstm_size", type=int, default=256)(f)
+    f = option("--dense_size", type=int, default=256)(f)
+    f = option("--dense_layers", type=int, default=5)(f)
+    f = option("--dropout_rate", type=float, default=0.1)(f)
+    f = option("--learning_rate_initial", type=float, default=0.01)(f)
+    f = option("--learning_rate_decay_rate", type=float, default=0.97)(f)
+    f = option("--learning_rate_decay_period", type=int, default=10)(f)
+    f = option("--batch_size", type=int, default=128)(f)
     return f
-
-
-@click.group()
-def main():
-    pass
 
 
 @main.command('train')
 @flags_resources
+@flags_shared
 @flags_hyperparams
 @option("--training_data_dir", required=True, type=dir_path,
         help="Dir containing training data as text files. All files under this dir will be read recursively.")
-def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_dir, seqlen, vocab_size):
+@option("--num_epochs", default=5, help="Train for this many epochs")
+@option("--starting_epoch", default=0)
+@option("--epochs_per_dataset", default=32)
+def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_dir, checkpoint_dir,
+          starting_model_file, seqlen, vocab_size, lstm_size, dense_size, dense_layers, dropout_rate, sample_size,
+          learning_rate_initial, learning_rate_decay_rate, learning_rate_decay_period, batch_size, num_epochs,
+          starting_epoch, epochs_per_dataset):
+
     vocab, words = util.load_vocab(vocab_file, vocab_size)
     emb_matrix = util.load_embeddings(vocab, glove_dims, glove_file)
-
     X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, lowercase=vocab_is_lowercase)
-    pass
+
+    if starting_model_file:
+        model = tf.keras.models.load_model(starting_model_file)
+    else:
+        model = make_model(emb_matrix=emb_matrix, vocab=vocab, seqlen=seqlen, sample_size=sample_size,
+                           lstm_sizes=[lstm_size, lstm_size], dense_size=dense_size, dense_layers=dense_layers,
+                           dropout_rate=dropout_rate)
+
+    checkpoint_filepath = "weights.lstm%d.batch%d.glove%d.sample%d.vocab%d.%s.hdf5" % (
+        lstm_size, batch_size, glove_dims, sample_size, vocab_size, "default")
+    checkpoint_filepath = os.path.join(checkpoint_dir, checkpoint_filepath)
+    print("Checkpoint filepath:", checkpoint_filepath)
+    checkpoint = K.callbacks.ModelCheckpoint(checkpoint_filepath, verbose=2, save_best_only=True, monitor='loss')
+
+    def decay(epoch):
+        return learning_rate_initial * math.pow(learning_rate_decay_rate,
+                                                math.floor(epoch / learning_rate_decay_period))
+
+    decay_scheduler = LearningRateScheduler(decay, verbose=1)
+
+    opt = K.optimizers.Adam(lr=0.0)
+    model.compile(opt, loss='categorical_crossentropy', metrics=["accuracy"])
+
+    train_seq = util.NegativeSamplingPermutedSequence(data_x=X, data_xu=Xu, seqlen=seqlen, batch_size=batch_size,
+                                                      sample_size=sample_size, vocab_size=len(vocab) + 1)
+    steps_per_epoch = int(math.floor(epochs_per_dataset * len(X) / batch_size))
+
+    model.fit_generator(train_seq, steps_per_epoch=steps_per_epoch, epochs=num_epochs,
+                        callbacks=[checkpoint, decay_scheduler], initial_epoch=starting_epoch, verbose=1)
 
 
 if __name__ == "__main__":
