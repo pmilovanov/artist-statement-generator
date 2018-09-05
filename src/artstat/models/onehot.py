@@ -1,7 +1,9 @@
 import math
 import os.path
+import sys
 
 import click
+import numpy as np
 import tensorflow as tf
 import tensorflow.keras as K
 from click import option
@@ -11,6 +13,7 @@ from tensorflow.keras.layers import (Activation, BatchNormalization, Concatenate
                                      Lambda)
 
 from artstat import util
+from artstat.util import Text2Seq, capitalize
 
 
 def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense_size=300, dense_layers=3, aux_dim=2,
@@ -50,6 +53,10 @@ def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense
     # and last word is for "unknown"
 
     # print(input_sample_indices.dtype, input_sample_indices.shape)
+    def sampling_layer_gather_nd(x):
+        data, sample_indices = x
+        return tf.gather_nd(data, tf.cast(sample_indices, tf.int32))
+
     out_train = Lambda(sampling_layer_gather_nd, name="sampling")([yhat, input_sample_indices])
     out_train = Activation('softmax')(out_train)
     out_train = Concatenate(name="concat_out_train")([out_train, yhat_aux])
@@ -88,10 +95,6 @@ def main():
 
 
 def flags_resources(f):
-    f = option("--vocab_file", required=True, type=file_path,
-               help="Vocabulary file to use to map words to integer ids.")(f)
-    f = option("--vocab_is_lowercase", default=True,
-               help="If true, will convert the word to lowercase before vocabulary lookup. True by default.")(f)
     f = option("--glove_file", required=True, type=file_path,
                help="File containing pretrained GloVe word embedding data, e.g one of the files from "
                     "http://nlp.stanford.edu/data/glove.6B.zip")(f)
@@ -104,8 +107,10 @@ def flags_resources(f):
 def flags_shared(f):
     f = option("--seqlen", default=64, help="Length of input sequence of words to predict from.")(f)
     f = option("--vocab_size", default=10000, help="Only use this many words from the top of the vocabulary file.")(f)
-    f = option("--sample_size", default=10,
-               help=("Sample size to be used for negative sampling. Includes the positive example."))(f)
+    f = option("--vocab_file", required=True, type=file_path,
+               help="Vocabulary file to use to map words to integer ids.")(f)
+    f = option("--vocab_is_lowercase", default=True,
+               help="If true, will convert the word to lowercase before vocabulary lookup. True by default.")(f)
     return f
 
 
@@ -118,6 +123,8 @@ def flags_hyperparams(f):
     f = option("--learning_rate_decay_rate", type=float, default=0.97)(f)
     f = option("--learning_rate_decay_period", type=int, default=10)(f)
     f = option("--batch_size", type=int, default=128)(f)
+    f = option("--sample_size", default=10,
+               help=("Sample size to be used for negative sampling. Includes the positive example."))(f)
     return f
 
 
@@ -136,13 +143,21 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
           starting_model_file, seqlen, vocab_size, lstm_size, dense_size, dense_layers, dropout_rate, sample_size,
           learning_rate_initial, learning_rate_decay_rate, learning_rate_decay_period, batch_size, num_epochs,
           starting_epoch, epochs_per_dataset):
-    vocab, words = util.load_vocab(vocab_file, vocab_size)
-    emb_matrix = util.load_embeddings(vocab, glove_dims, glove_file)
+    print("Loading vocabulary from ", vocab_file)
+    words, vocab = util.load_vocab(vocab_file, vocab_size)
+    print("Loaded", len(vocab), "words")
+    print(vocab['test'])
+
+    print("Loading training data from", training_data_dir)
     X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, lowercase=vocab_is_lowercase)
 
     if starting_model_file:
+        print("Loading model from ", starting_model_file)
         model = tf.keras.models.load_model(starting_model_file)
     else:
+        print("Loading embedding matrix")
+        emb_matrix = util.load_embeddings(vocab, glove_dims, glove_file)
+        print("Creating model")
         model = make_model(emb_matrix=emb_matrix, vocab=vocab, seqlen=seqlen, sample_size=sample_size,
                            lstm_sizes=[lstm_size, lstm_size], dense_size=dense_size, dense_layers=dense_layers,
                            dropout_rate=dropout_rate)
@@ -150,7 +165,7 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
     checkpoint_filepath = "weights.lstm%d.batch%d.glove%d.sample%d.vocab%d.%s.hdf5" % (
         lstm_size, batch_size, glove_dims, sample_size, vocab_size, "default")
     checkpoint_filepath = os.path.join(checkpoint_dir, checkpoint_filepath)
-    print("Checkpoint filepath:", checkpoint_filepath)
+    print("Will write checkpoints to:", checkpoint_filepath)
     checkpoint = K.callbacks.ModelCheckpoint(checkpoint_filepath, verbose=2, save_best_only=True, monitor='loss')
 
     def decay(epoch):
@@ -164,18 +179,75 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
 
     train_seq = util.NegativeSamplingPermutedSequence(data_x=X, data_xu=Xu, seqlen=seqlen, batch_size=batch_size,
                                                       sample_size=sample_size, vocab_size=len(vocab) + 1)
-    steps_per_epoch = int(math.floor(epochs_per_dataset * len(X) / batch_size))
+    steps_per_epoch = int(math.floor(len(X) / (batch_size * epochs_per_dataset)))
 
     model.fit_generator(train_seq, steps_per_epoch=steps_per_epoch, epochs=num_epochs,
                         callbacks=[checkpoint, decay_scheduler], initial_epoch=starting_epoch, verbose=1)
 
 
+#######################################################################################################################
 @main.command('sample')
-@flags_resources
 @flags_shared
 @option("--model_file", type=file_path)
-def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, seqlen, sample_size, vocab_size, model_file):
-    pass
+@option("--num_words_to_sample", default=5)
+@option("--init_text", prompt="Initialization text", type=str)
+def sample(vocab_file, vocab_is_lowercase, seqlen, sample_size, vocab_size, model_file, num_words_to_sample, init_text):
+    cols = 80
+    words, vocab = util.load_vocab(vocab_file, vocab_size)
+    model = K.models.load_model(model_file)
+
+    t2s = Text2Seq(vocab, vocab_is_lowercase=vocab_is_lowercase)
+    X, Xu = t2s.toseq(init_text)
+    gen = util.padleft(X, seqlen).tolist()
+    genu = util.padleft(Xu, seqlen).tolist()
+
+    for i, idx in enumerate(gen):
+        word = "<UNK>"
+        if genu[i][0] < 0.1: word = words[idx]
+        if genu[i][1] > 0.9: word = util.capitalize(word)
+        sys.stdout.write(word + " ")
+        sys.stdout.flush()
+
+    print("=" * 100)
+    UNK_IDX = len(words)
+
+    punct = ":-;.,!?'\")"
+    punct2 = "-/'(\""
+
+    prev_word = words[gen[-1]]
+    word = ""
+
+    chars = 0  # chars printed out on this line so far
+    tX = np.zeros((1, seqlen), dtype="int32")
+    tXu = np.zeros((1, seqlen, 2), dtype="float32")
+    results = []
+
+    for j in range(num_words_to_sample):
+        tX[0] = np.array(gen[-seqlen:], "int32")
+        tXu[0] = np.array(genu[-seqlen:], "float32")
+        z = model.predict([tX, tXu])
+        scores, aux = z[0][:-2], z[0][-2:]
+        idx = UNK_IDX
+        while idx == UNK_IDX:
+            idx = np.random.choice(range(len(vocab) + 2), p=scores)
+
+        gen.append(idx)
+        genu.append([0.0, aux[1]])
+        word = words[idx]
+        if aux[1] > 0.5: word = capitalize(word)
+        results.append(word)
+
+        if cols - chars < len(word) + 1:
+            sys.stdout.write("\n")
+            chars = 0
+        if punct.find(word) < 0 and punct2.find(prev_word) < 0:
+            sys.stdout.write(" ")
+            chars += 1
+        sys.stdout.write(word)
+        chars += len(word)
+        sys.stdout.flush()
+
+        prev_word = word
 
 
 if __name__ == "__main__":

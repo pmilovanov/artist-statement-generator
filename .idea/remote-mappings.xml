@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteMappingsManager">
+    <list>
+      <list>
+        <remote-mappings server-id="python@docker://artstat:latest/python3">
+          <settings>
+            <list>
+              <mapping local-root="$USER_HOME$/data/shared" remote-root="/data/shared" />
+              <mapping local-root="$USER_HOME$/data/local" remote-root="/data/local" />
+            </list>
+          </settings>
+        </remote-mappings>
+      </list>
+    </list>
+  </component>
+</project>

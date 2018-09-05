@@ -1,7 +1,9 @@
 #!/usr/bin/python3
+import asyncio
 import math
 import os
 
+import aiofiles as aiofiles
 import numpy as np
 import regex as re
 from nltk import WordPunctTokenizer
@@ -91,7 +93,7 @@ class Text2Seq:
         """
         self.vocab = vocab
         self.vocab_is_lowercase = vocab_is_lowercase
-        self.tokenizer = CustomTokenizer()
+        self.tokenizer = CustomTokenizer(unicode_to_ascii=False)
 
     def token2vec(self, word):
         id, aux_unknown, aux_uppercase = 0, 1, 0
@@ -102,9 +104,8 @@ class Text2Seq:
                 aux_uppercase = 1
             word = lower_word
 
-        if word in self.vocab.keys():
-            id = self.vocab[word]
-            aux_unknown = 0
+        id = self.vocab.get(word, 0)
+        if id != 0: aux_unknown = 0
 
         return id, [aux_unknown, aux_uppercase]
 
@@ -185,6 +186,63 @@ def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
     return X, Y, Xu, Yu
 
 
+async def load_data_async_inner(path, vocab, pad=32, numfiles=0, lowercase=False):
+    X, Xu = [], []
+    t2s = Text2Seq(vocab, vocab_is_lowercase=lowercase)
+    files = recursively_list_files(path)
+    files = tqdm(files, ascii=True, mininterval=1.0)
+    for i, fname in enumerate(files):
+        if numfiles > 0 and (i + 1) > numfiles:
+            break  # Process at most `numfiles` files
+        async with aiofiles.open(fname, "r", encoding="utf-8") as f:
+            text = await f.read()
+            seq, aux = t2s.toseq(text)
+            X.extend(seq)
+            Xu.extend(aux)
+            X.extend([0] * pad)
+            Xu.extend([[0, 0]] * pad)
+
+    X = np.array(X, dtype="int32")
+    Xu = np.array(Xu, dtype="float32")
+    return X, Xu
+
+
+def load_data_async(path, vocab, pad=32, numfiles=0, lowercase=False):
+    loop = asyncio.get_event_loop()
+
+    queue = asyncio.Queue(maxsize=10, loop=loop)
+
+    async def reader(queue):
+        files = recursively_list_files(path)
+        files = tqdm(files, ascii=True, miniters=50)
+        for i, fname in enumerate(files):
+            if numfiles > 0 and (i + 1) > numfiles:
+                break
+            async with aiofiles.open(fname, "r", encoding="utf-8") as f:
+                text = await f.read()
+                await queue.put(text)
+        await queue.put(None)
+
+    X, Xu = [], []
+    t2s = Text2Seq(vocab, vocab_is_lowercase=lowercase)
+
+    async def processor(queue):
+        while True:
+            text = await queue.get()
+            if text is None: break
+            seq, aux = t2s.toseq(text)
+            X.extend(seq)
+            Xu.extend(aux)
+            X.extend([0] * pad)
+            Xu.extend([[0, 0]] * pad)
+
+    loop.run_until_complete(asyncio.gather(reader(queue), processor(queue)))
+
+    X = np.array(X, dtype="int32")
+    Xu = np.array(Xu, dtype="float32")
+    return X, Xu
+
+
 def load_data(path, vocab, pad=32, numfiles=0, lowercase=False):
     X, Xu = [], []
     t2s = Text2Seq(vocab, vocab_is_lowercase=lowercase)
@@ -203,6 +261,26 @@ def load_data(path, vocab, pad=32, numfiles=0, lowercase=False):
     X = np.array(X, dtype="int32")
     Xu = np.array(Xu, dtype="float32")
     return X, Xu
+
+
+def pad(a, final_length, left=True):
+    if type(a) == list:
+        a = np.array(a)
+    if final_length <= len(a): return a
+    z = np.zeros((final_length - len(a), *a.shape[1:]))
+
+    if left:
+        return np.concatenate(z, a)
+    else:
+        return np.concatenate(a, z)
+
+
+def padleft(a, final_length):
+    return pad(a, final_length, left=True)
+
+
+def padright(a, final_length):
+    return pad(a, final_length, left=False)
 
 
 class ShiftByOneSequence(Sequence):
@@ -443,3 +521,8 @@ def squish_distribution(scores, alpha):
     s2 = np.power(scores, alpha)
     total = np.sum(s2)
     return s2 / total
+
+
+def capitalize(s):
+    if len(s) == 0: return s
+    return s[0].upper() + s[1:]

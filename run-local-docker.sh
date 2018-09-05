@@ -1,9 +1,8 @@
 #!/bin/bash
 
-DATA=$HOME/kdata
+DATA=$HOME/data
 
-nvidia-docker run -d -it -p 9999:9999 \
-    --rm \
+nvidia-docker run --rm -it -p 9999:9999 \
     -v $(pwd):/app \
     -v $DATA/local:/data/local \
     -v $DATA/shared:/data/shared \
