@@ -13,11 +13,13 @@ def add_to_vocab(vocab, word):
         vocab[word] = 0
     vocab[word] += 1
 
+
 def sortedvocab(vocab):
     items = vocab.items()
     sorteditems = sorted(items, key=(lambda x: x[1]), reverse=True)
     return sorteditems
-    
+
+
 def printvocab(vocab):
     for word, count in sortedvocab(vocab):
         print("%30d %s" % (count, word))
@@ -41,24 +43,19 @@ def writevocab(vocab, outputfile, sortwords, vocabsize):
 
     return covered
 
+
 @click.command()
-@click.option("--normalize_unicode", default=True,
-              help="Convert Unicode chars, e.g punctuation, to their " \
-                   "closest ASCII counterparts. Def: true")
-@click.option("--maxnumfiles", default=0,
-              help="Only process at most this many files. " \
-              "Set to zero or don't specify to process all files. Def: all files.")
-@click.option("--outputfile", default="",
-              help="If provided, will write out a list of vocabulary words " \
-                   "to this file, one per line.")
-@click.option("--vocabsize", default=0,
-              help="Max words to output in vocab. Default=0, output all")
+@click.option("--normalize_unicode", default=True, help="Convert Unicode chars, e.g punctuation, to their " \
+                                                        "closest ASCII counterparts. Def: true")
+@click.option("--maxnumfiles", default=0, help="Only process at most this many files. " \
+                                               "Set to zero or don't specify to process all files. Def: all files.")
+@click.option("--outputfile", default="", help="If provided, will write out a list of vocabulary words " \
+                                               "to this file, one per line.")
+@click.option("--vocabsize", default=0, help="Max words to output in vocab. Default=0, output all")
 @click.option("--output_word_counts_file", default="",
               help="If provided, write a full histogram of word counts to this filename.")
-@click.option("--sortwords", default=True,
-              help="When writing to file, sort words by frequency descending. Def: true.")
-@click.option("--lowercase", default=False,
-              help="Generate lowercase words only.")
+@click.option("--sortwords", default=True, help="When writing to file, sort words by frequency descending. Def: true.")
+@click.option("--lowercase", default=False, help="Generate lowercase words only.")
 @click.option("--quiet", default=False, help="Suppress stdout output")
 @click.argument("textpath")
 def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet, output_word_counts_file, vocabsize,
@@ -68,7 +65,7 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet,
     def echo(*args):
         if not quiet:
             print(*args)
-    
+
     vocab = dict()
 
     tokenizer = CustomTokenizer(normalize_unicode)
@@ -84,7 +81,7 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet,
 
     wordsperfile = []
     for i, filename in enumerate(files):
-        if maxnumfiles > 0 and i+1 > maxnumfiles:
+        if maxnumfiles > 0 and i + 1 > maxnumfiles:
             break
         with open(filename, "r") as f:
             text = f.read()
@@ -137,5 +134,5 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet,
             printvocab(vocab)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()

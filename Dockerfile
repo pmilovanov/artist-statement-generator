@@ -27,5 +27,8 @@ RUN pip3 install tensorflow-gpu
 
 ENV PYTHONPATH=/app/src:$PYTHONPATH
 
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
 EXPOSE 9999
 
