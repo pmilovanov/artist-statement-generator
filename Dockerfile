@@ -15,7 +15,7 @@ VOLUME /data/local
 #RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 #RUN python3 get-pip.py
 
-RUN pip3 install nltk tqdm unidecode click h5py aiofiles pygtrie
+RUN pip3 install nltk tqdm unidecode click h5py aiofiles pygtrie pytest
 
 
 RUN pip3 install regex

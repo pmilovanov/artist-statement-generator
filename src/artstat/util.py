@@ -95,19 +95,6 @@ class Text2Seq:
         self.vocab_is_lowercase = vocab_is_lowercase
         self.tokenizer = CustomTokenizer(unicode_to_ascii=False)
 
-    def token2vec(self, word):
-        id, aux_unknown, aux_uppercase = 0, 1, 0
-
-        if self.vocab_is_lowercase:
-            lower_word = word.lower()
-            if lower_word != word:
-                aux_uppercase = 1
-            word = lower_word
-
-        id = self.vocab.get(word, 0)
-        if id != 0: aux_unknown = 0
-
-        return id, [aux_unknown, aux_uppercase]
 
     def toseq(self, text, notfound=0):
         """
@@ -124,9 +111,20 @@ class Text2Seq:
         seq = []
         aux_bits = []
         for word in self.tokenizer.tokenize(text):
-            id, aux = self.token2vec(word)
+
+            id, aux_unknown, aux_uppercase = 0, 1, 0
+
+            if self.vocab_is_lowercase:
+                lower_word = word.lower()
+                if lower_word != word:
+                    aux_uppercase = 1
+                word = lower_word
+
+            id = self.vocab.get(word, 0)
+            if id != 0: aux_unknown = 0
+
             seq.append(id)
-            aux_bits.append(aux)
+            aux_bits.append([aux_unknown, aux_uppercase])
 
         return seq, aux_bits
 
