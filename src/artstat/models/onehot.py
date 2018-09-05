@@ -1,21 +1,16 @@
 import math
-
-import click
-from click import option, argument
-
-import tensorflow.keras as K
 import os.path
 
-import sys, imp
+import click
+import tensorflow as tf
+import tensorflow.keras as K
+from click import option
+from tensorflow.keras import Input, Model
+from tensorflow.keras.callbacks import LearningRateScheduler
+from tensorflow.keras.layers import (Activation, BatchNormalization, Concatenate, CuDNNLSTM, Dense, Dropout, Embedding,
+                                     Lambda)
 
 from artstat import util
-import numpy as np
-
-from tensorflow.keras import Model, Input
-from tensorflow.keras.callbacks import LearningRateScheduler, ModelCheckpoint
-from tensorflow.keras.layers import (Embedding, CuDNNLSTM, BatchNormalization, Dense, Concatenate, Lambda, Activation,
-                                     Dropout)
-import tensorflow as tf
 
 
 def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense_size=300, dense_layers=3, aux_dim=2,
@@ -103,8 +98,6 @@ def flags_resources(f):
     f = option("--glove_dims", required=True, type=int,
                help="Dimensionality of GloVe word embedding output vectors. Must match that in the provided "
                     "<glove_file>, e.g 300 for glove.6B.300d.txt")(f)
-    f = option("--checkpoint_dir", required=True, type=dir_path)(f)
-    f = option("--starting_model_file", type=file_path)(f)
     return f
 
 
@@ -132,6 +125,8 @@ def flags_hyperparams(f):
 @flags_resources
 @flags_shared
 @flags_hyperparams
+@option("--checkpoint_dir", required=True, type=dir_path)
+@option("--starting_model_file", type=file_path)
 @option("--training_data_dir", required=True, type=dir_path,
         help="Dir containing training data as text files. All files under this dir will be read recursively.")
 @option("--num_epochs", default=5, help="Train for this many epochs")
@@ -141,7 +136,6 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
           starting_model_file, seqlen, vocab_size, lstm_size, dense_size, dense_layers, dropout_rate, sample_size,
           learning_rate_initial, learning_rate_decay_rate, learning_rate_decay_period, batch_size, num_epochs,
           starting_epoch, epochs_per_dataset):
-
     vocab, words = util.load_vocab(vocab_file, vocab_size)
     emb_matrix = util.load_embeddings(vocab, glove_dims, glove_file)
     X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, lowercase=vocab_is_lowercase)
@@ -174,6 +168,14 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
 
     model.fit_generator(train_seq, steps_per_epoch=steps_per_epoch, epochs=num_epochs,
                         callbacks=[checkpoint, decay_scheduler], initial_epoch=starting_epoch, verbose=1)
+
+
+@main.command('sample')
+@flags_resources
+@flags_shared
+@option("--model_file", type=file_path)
+def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, seqlen, sample_size, vocab_size, model_file):
+    pass
 
 
 if __name__ == "__main__":
