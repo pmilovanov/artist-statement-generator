@@ -20,7 +20,7 @@ def load_vocab(filename, maxwords=0):
     :param maxwords: Max number of words to load. Load all by default.
     Returns (list of words, word->id map)
     """
-    pad = "<#PAD#>"
+    pad = "·"  # "<#PAD#>"
     vocab = dict()
     words = []
     counter = 1  # start off with 1 so that embedding matrix's first vector is zero and second is for unknown

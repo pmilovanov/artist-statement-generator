@@ -1,6 +1,7 @@
 import math
 import os.path
 import sys
+import textwrap
 
 import click
 import keras
@@ -218,14 +219,15 @@ def sample(vocab_file, vocab_is_lowercase, seqlen, vocab_size, model_file, num_w
     model = make_predict_model(model_train)
 
     info("=" * 100)
+    s = ""
     for i, idx in enumerate(gen):
         word = "<UNK>"
         if genu[i][0] < 0.1:
             word = words[idx]
         if genu[i][1] > 0.9:
             word = util.capitalize(word)
-        sys.stdout.write(word + " ")
-        sys.stdout.flush()
+        s += word + " "
+    info(textwrap.fill(s, 80))
 
     print()
     info("=" * 100)
