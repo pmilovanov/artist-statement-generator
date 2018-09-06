@@ -10,7 +10,7 @@ from click import option
 from keras import Input, Model
 from keras.callbacks import LearningRateScheduler
 from keras.layers import (Activation, BatchNormalization, Concatenate, CuDNNLSTM, Dense, Dropout, Embedding,
-                                     Lambda)
+                          Lambda)
 
 from artstat import util
 from artstat.util import Text2Seq, capitalize
@@ -21,11 +21,9 @@ def sampling_layer_gather_nd(x):
     data, sample_indices = x
     return tf.gather_nd(data, tf.cast(sample_indices, tf.int32))
 
-def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense_size=300, dense_layers=3, aux_dim=2,
-               dropout_rate=0.1):
-    if lstm_sizes is None:
-        lstm_sizes = [256, 256]
 
+def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_size=256, dense_size=300, dense_layers=3, aux_dim=2,
+               dropout_rate=0.1, lstm_layers=2):
     input_x = Input((seqlen,), dtype="int32", name="input_x")
     input_aux = Input((seqlen, aux_dim), dtype="float32", name="input_aux")
     input_sample_indices = Input((sample_size, 2), dtype="int32", name="input_sample_indices")
@@ -36,11 +34,11 @@ def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense
     concat_x = Concatenate(name="concat_x")([emb_x, input_aux])
     yhat = concat_x
 
-    for i, layer_size in enumerate(lstm_sizes):
-        ret_sequences = (i < len(lstm_sizes) - 1)
+    for i in range(lstm_layers):
+        ret_sequences = (i < lstm_layers - 1)
         layerno = i + 1
-        yhat = CuDNNLSTM(layer_size, return_sequences=ret_sequences, name=('lstm%d' % layerno))(yhat)
-        yhat = BatchNormalization()(yhat)
+        yhat = CuDNNLSTM(lstm_size, return_sequences=ret_sequences, name=('lstm%d' % layerno))(yhat)
+        # yhat = BatchNormalization()(yhat)
         # yhat = Dropout(dropout_rate)(yhat)
 
     # yhat = BatchNormalization()(yhat)
@@ -49,7 +47,6 @@ def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense
         yhat = Dense(300, activation="relu", name=("dense%d" % layer))(yhat)
         yhat = BatchNormalization()(yhat)
         yhat = Dropout(dropout_rate)(yhat)
-
 
     # These two layers are special: given the model returned by this function,
     # we can make a model for prediction by taking input_x, input_aux as inputs,
@@ -121,6 +118,7 @@ def flags_shared(f):
 
 def flags_hyperparams(f):
     f = option("--lstm_size", type=int, default=256)(f)
+    f = option("--lstm_layers", type=int, default=2)(f)
     f = option("--dense_size", type=int, default=256)(f)
     f = option("--dense_layers", type=int, default=5)(f)
     f = option("--dropout_rate", type=float, default=0.1)(f)
@@ -137,6 +135,7 @@ def info(*args):
     s = " ".join([str(x) for x in args])
     click.echo(click.style(s, fg='red'))
 
+
 @main.command('train')
 @flags_resources
 @flags_shared
@@ -150,9 +149,9 @@ def info(*args):
 @option("--starting_epoch", default=0)
 @option("--epochs_per_dataset", default=32)
 def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_dir, training_max_files, checkpoint_dir,
-          starting_model_file, seqlen, vocab_size, lstm_size, dense_size, dense_layers, dropout_rate, sample_size,
-          learning_rate_initial, learning_rate_decay_rate, learning_rate_decay_period, batch_size, num_epochs,
-          starting_epoch, epochs_per_dataset):
+          starting_model_file, seqlen, vocab_size, lstm_size, lstm_layers, dense_size, dense_layers, dropout_rate,
+          sample_size, learning_rate_initial, learning_rate_decay_rate, learning_rate_decay_period, batch_size,
+          num_epochs, starting_epoch, epochs_per_dataset):
     info("Loading vocabulary from ", vocab_file)
     words, vocab = util.load_vocab(vocab_file, vocab_size)
     info("Loaded", len(vocab), "words")
@@ -166,12 +165,14 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
         emb_matrix = util.load_embeddings(vocab, glove_dims, glove_file)
         info("Creating model")
         model = make_model(emb_matrix=emb_matrix, vocab=vocab, seqlen=seqlen, sample_size=sample_size,
-                           lstm_sizes=[lstm_size, lstm_size], dense_size=dense_size, dense_layers=dense_layers,
-                           dropout_rate=dropout_rate)
+                           lstm_size=lstm_size, dense_size=dense_size, dense_layers=dense_layers,
+                           lstm_layers=lstm_layers, dropout_rate=dropout_rate)
 
     info("Loading training data from", training_data_dir)
     X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, numfiles=training_max_files,
                            lowercase=vocab_is_lowercase)
+
+    info("Unknown words in training data: %.2f%%" % util.unknown_word_percentage(Xu))
 
     checkpoint_filepath = "weights.lstm%d.batch%d.glove%d.sample%d.vocab%d.%s.hdf5" % (
         lstm_size, batch_size, glove_dims, sample_size, vocab_size, "default")
@@ -207,7 +208,6 @@ def sample(vocab_file, vocab_is_lowercase, seqlen, vocab_size, model_file, num_w
     cols = 80
     info("Loading vocabulary")
     words, vocab = util.load_vocab(vocab_file, vocab_size)
-
 
     t2s = Text2Seq(vocab, vocab_is_lowercase=vocab_is_lowercase)
     X, Xu = t2s.toseq(init_text)

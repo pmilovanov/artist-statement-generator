@@ -217,3 +217,15 @@ def test_pad():
                      [0., 0., 0., 0.],
                      [0., 0., 0., 0.],
                      ]))
+
+
+def test_unknown_word_percentage():
+    Xu = array([
+        [1, 0],
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 0]
+        ])
+
+    assert 0.6 == util.unknown_word_percentage(Xu)

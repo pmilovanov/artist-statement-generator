@@ -3,6 +3,7 @@ import asyncio
 import math
 import os
 
+import numpy
 import numpy as np
 import regex as re
 from nltk import WordPunctTokenizer
@@ -262,6 +263,10 @@ def pad(a, final_length, left=True):
             a = np.array(a, dtype=dtype)
         else:
             raise Exception("a should have int32 or float32 elements")
+    elif type(a) == numpy.ndarray:
+        dtype = a.dtype
+    else:
+        raise Exception("a should be a list or a numpy.ndarray")
 
     if final_length <= len(a): return a
     s = list(a.shape)
@@ -523,5 +528,11 @@ def squish_distribution(scores, alpha):
 
 
 def capitalize(s):
-    if len(s) == 0: return s
+    if len(s) == 0:
+        return s
     return s[0].upper() + s[1:]
+
+
+def unknown_word_percentage(Xu):
+    s = np.sum(Xu, axis=0)
+    return 100.0 * s[0] / len(Xu)
