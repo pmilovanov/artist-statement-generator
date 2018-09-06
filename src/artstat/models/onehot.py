@@ -40,7 +40,7 @@ def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense
         ret_sequences = (i < len(lstm_sizes) - 1)
         layerno = i + 1
         yhat = CuDNNLSTM(layer_size, return_sequences=ret_sequences, name=('lstm%d' % layerno))(yhat)
-        # yhat = BatchNormalization()(yhat)
+        yhat = BatchNormalization()(yhat)
         # yhat = Dropout(dropout_rate)(yhat)
 
     # yhat = BatchNormalization()(yhat)
@@ -145,10 +145,11 @@ def info(*args):
 @option("--starting_model_file", type=file_path)
 @option("--training_data_dir", required=True, type=dir_path,
         help="Dir containing training data as text files. All files under this dir will be read recursively.")
+@option("--training_max_files", default=0)
 @option("--num_epochs", default=5, help="Train for this many epochs")
 @option("--starting_epoch", default=0)
 @option("--epochs_per_dataset", default=32)
-def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_dir, checkpoint_dir,
+def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_dir, training_max_files, checkpoint_dir,
           starting_model_file, seqlen, vocab_size, lstm_size, dense_size, dense_layers, dropout_rate, sample_size,
           learning_rate_initial, learning_rate_decay_rate, learning_rate_decay_period, batch_size, num_epochs,
           starting_epoch, epochs_per_dataset):
@@ -169,7 +170,8 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
                            dropout_rate=dropout_rate)
 
     info("Loading training data from", training_data_dir)
-    X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, lowercase=vocab_is_lowercase)
+    X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, numfiles=training_max_files,
+                           lowercase=vocab_is_lowercase)
 
     checkpoint_filepath = "weights.lstm%d.batch%d.glove%d.sample%d.vocab%d.%s.hdf5" % (
         lstm_size, batch_size, glove_dims, sample_size, vocab_size, "default")
@@ -191,7 +193,8 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
     steps_per_epoch = int(math.floor(len(X) / (batch_size * epochs_per_dataset)))
 
     model.fit_generator(train_seq, steps_per_epoch=steps_per_epoch, epochs=num_epochs,
-                        callbacks=[checkpoint, decay_scheduler], initial_epoch=starting_epoch, verbose=1)
+                        callbacks=[checkpoint, decay_scheduler], initial_epoch=starting_epoch, verbose=1,
+                        use_multiprocessing=False, workers=8, max_queue_size=64)
 
 
 #######################################################################################################################
