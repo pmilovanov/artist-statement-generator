@@ -3,11 +3,10 @@ import asyncio
 import math
 import os
 
-import aiofiles as aiofiles
 import numpy as np
 import regex as re
 from nltk import WordPunctTokenizer
-from tensorflow.keras.utils import Sequence
+from keras.utils import Sequence
 from tqdm import tqdm
 from unidecode import unidecode
 
@@ -118,7 +117,7 @@ class Text2Seq:
                 lower_word = word.lower()
                 if lower_word != word:
                     aux_uppercase = 1
-                word = lower_word
+                    word = lower_word
 
             id = self.vocab.get(word, 0)
             if id != 0: aux_unknown = 0
@@ -184,68 +183,47 @@ def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
     return X, Y, Xu, Yu
 
 
-async def load_data_async_inner(path, vocab, pad=32, numfiles=0, lowercase=False):
-    X, Xu = [], []
-    t2s = Text2Seq(vocab, vocab_is_lowercase=lowercase)
-    files = recursively_list_files(path)
-    files = tqdm(files, ascii=True, mininterval=1.0)
-    for i, fname in enumerate(files):
-        if numfiles > 0 and (i + 1) > numfiles:
-            break  # Process at most `numfiles` files
-        async with aiofiles.open(fname, "r", encoding="utf-8") as f:
-            text = await f.read()
-            seq, aux = t2s.toseq(text)
-            X.extend(seq)
-            Xu.extend(aux)
-            X.extend([0] * pad)
-            Xu.extend([[0, 0]] * pad)
-
-    X = np.array(X, dtype="int32")
-    Xu = np.array(Xu, dtype="float32")
-    return X, Xu
-
-
-def load_data_async(path, vocab, pad=32, numfiles=0, lowercase=False):
-    loop = asyncio.get_event_loop()
-
-    queue = asyncio.Queue(maxsize=10, loop=loop)
-
-    async def reader(queue):
-        files = recursively_list_files(path)
-        files = tqdm(files, ascii=True, miniters=50)
-        for i, fname in enumerate(files):
-            if numfiles > 0 and (i + 1) > numfiles:
-                break
-            async with aiofiles.open(fname, "r", encoding="utf-8") as f:
-                text = await f.read()
-                await queue.put(text)
-        await queue.put(None)
-
-    X, Xu = [], []
-    t2s = Text2Seq(vocab, vocab_is_lowercase=lowercase)
-
-    async def processor(queue):
-        while True:
-            text = await queue.get()
-            if text is None: break
-            seq, aux = t2s.toseq(text)
-            X.extend(seq)
-            Xu.extend(aux)
-            X.extend([0] * pad)
-            Xu.extend([[0, 0]] * pad)
-
-    loop.run_until_complete(asyncio.gather(reader(queue), processor(queue)))
-
-    X = np.array(X, dtype="int32")
-    Xu = np.array(Xu, dtype="float32")
-    return X, Xu
+# def load_data_async(path, vocab, pad=32, numfiles=0, lowercase=False):
+#     loop = asyncio.get_event_loop()
+#
+#     queue = asyncio.Queue(maxsize=10, loop=loop)
+#
+#     async def reader(queue):
+#         files = recursively_list_files(path)
+#         files = tqdm(files, ascii=True, miniters=50)
+#         for i, fname in enumerate(files):
+#             if numfiles > 0 and (i + 1) > numfiles:
+#                 break
+#             async with aiofiles.open(fname, "r", encoding="utf-8") as f:
+#                 text = await f.read()
+#                 await queue.put(text)
+#         await queue.put(None)
+#
+#     X, Xu = [], []
+#     t2s = Text2Seq(vocab, vocab_is_lowercase=lowercase)
+#
+#     async def processor(queue):
+#         while True:
+#             text = await queue.get()
+#             if text is None: break
+#             seq, aux = t2s.toseq(text)
+#             X.extend(seq)
+#             Xu.extend(aux)
+#             X.extend([0] * pad)
+#             Xu.extend([[0, 0]] * pad)
+#
+#     loop.run_until_complete(asyncio.gather(reader(queue), processor(queue)))
+#
+#     X = np.array(X, dtype="int32")
+#     Xu = np.array(Xu, dtype="float32")
+#     return X, Xu
 
 
 def load_data(path, vocab, pad=32, numfiles=0, lowercase=False):
     X, Xu = [], []
     t2s = Text2Seq(vocab, vocab_is_lowercase=lowercase)
     files = recursively_list_files(path)
-    for i, fname in enumerate(tqdm(files, ascii=True)):
+    for i, fname in enumerate(tqdm(files, ascii=True, mininterval=0.5)):
         if numfiles > 0 and (i + 1) > numfiles:
             break  # Process at most `numfiles` files
         with open(fname, "r", encoding="utf-8") as f:
@@ -261,16 +239,39 @@ def load_data(path, vocab, pad=32, numfiles=0, lowercase=False):
     return X, Xu
 
 
+eltypemap = {
+    int:   "int32",
+    float: "float32"
+    }
+
+
+def eltype(a):
+    t = type(a)
+    if t != list:
+        return eltypemap.get(t, None)
+    if len(a) == 0:
+        return None
+
+    return eltype(a[0])
+
+
 def pad(a, final_length, left=True):
     if type(a) == list:
-        a = np.array(a)
+        dtype = eltype(a)
+        if dtype:
+            a = np.array(a, dtype=dtype)
+        else:
+            raise Exception("a should have int32 or float32 elements")
+
     if final_length <= len(a): return a
-    z = np.zeros((final_length - len(a), *a.shape[1:]))
+    s = list(a.shape)
+    s[0] = final_length - len(a)
+    z = np.zeros(tuple(s), dtype=dtype)
 
     if left:
-        return np.concatenate(z, a)
+        return np.concatenate([z, a])
     else:
-        return np.concatenate(a, z)
+        return np.concatenate([a, z])
 
 
 def padleft(a, final_length):

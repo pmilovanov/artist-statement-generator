@@ -3,18 +3,23 @@ import os.path
 import sys
 
 import click
+import keras
 import numpy as np
 import tensorflow as tf
-import tensorflow.keras as K
 from click import option
-from tensorflow.keras import Input, Model
-from tensorflow.keras.callbacks import LearningRateScheduler
-from tensorflow.keras.layers import (Activation, BatchNormalization, Concatenate, CuDNNLSTM, Dense, Dropout, Embedding,
+from keras import Input, Model
+from keras.callbacks import LearningRateScheduler
+from keras.layers import (Activation, BatchNormalization, Concatenate, CuDNNLSTM, Dense, Dropout, Embedding,
                                      Lambda)
 
 from artstat import util
 from artstat.util import Text2Seq, capitalize
 
+
+def sampling_layer_gather_nd(x):
+    import tensorflow as tf
+    data, sample_indices = x
+    return tf.gather_nd(data, tf.cast(sample_indices, tf.int32))
 
 def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense_size=300, dense_layers=3, aux_dim=2,
                dropout_rate=0.1):
@@ -35,13 +40,16 @@ def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense
         ret_sequences = (i < len(lstm_sizes) - 1)
         layerno = i + 1
         yhat = CuDNNLSTM(layer_size, return_sequences=ret_sequences, name=('lstm%d' % layerno))(yhat)
-        yhat = BatchNormalization()(yhat)
-        yhat = Dropout(dropout_rate)(yhat)
+        # yhat = BatchNormalization()(yhat)
+        # yhat = Dropout(dropout_rate)(yhat)
+
+    # yhat = BatchNormalization()(yhat)
 
     for layer in range(1, dense_layers + 1):
         yhat = Dense(300, activation="relu", name=("dense%d" % layer))(yhat)
         yhat = BatchNormalization()(yhat)
         yhat = Dropout(dropout_rate)(yhat)
+
 
     # These two layers are special: given the model returned by this function,
     # we can make a model for prediction by taking input_x, input_aux as inputs,
@@ -53,9 +61,6 @@ def make_model(*, emb_matrix, vocab, seqlen, sample_size, lstm_sizes=None, dense
     # and last word is for "unknown"
 
     # print(input_sample_indices.dtype, input_sample_indices.shape)
-    def sampling_layer_gather_nd(x):
-        data, sample_indices = x
-        return tf.gather_nd(data, tf.cast(sample_indices, tf.int32))
 
     out_train = Lambda(sampling_layer_gather_nd, name="sampling")([yhat, input_sample_indices])
     out_train = Activation('softmax')(out_train)
@@ -128,6 +133,10 @@ def flags_hyperparams(f):
     return f
 
 
+def info(*args):
+    s = " ".join([str(x) for x in args])
+    click.echo(click.style(s, fg='red'))
+
 @main.command('train')
 @flags_resources
 @flags_shared
@@ -143,30 +152,30 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
           starting_model_file, seqlen, vocab_size, lstm_size, dense_size, dense_layers, dropout_rate, sample_size,
           learning_rate_initial, learning_rate_decay_rate, learning_rate_decay_period, batch_size, num_epochs,
           starting_epoch, epochs_per_dataset):
-    print("Loading vocabulary from ", vocab_file)
+    info("Loading vocabulary from ", vocab_file)
     words, vocab = util.load_vocab(vocab_file, vocab_size)
-    print("Loaded", len(vocab), "words")
-    print(vocab['test'])
-
-    print("Loading training data from", training_data_dir)
-    X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, lowercase=vocab_is_lowercase)
+    info("Loaded", len(vocab), "words")
+    # print(vocab['test'])
 
     if starting_model_file:
-        print("Loading model from ", starting_model_file)
-        model = tf.keras.models.load_model(starting_model_file)
+        info("Loading model from ", starting_model_file)
+        model = keras.models.load_model(starting_model_file)
     else:
-        print("Loading embedding matrix")
+        info("Loading embedding matrix")
         emb_matrix = util.load_embeddings(vocab, glove_dims, glove_file)
-        print("Creating model")
+        info("Creating model")
         model = make_model(emb_matrix=emb_matrix, vocab=vocab, seqlen=seqlen, sample_size=sample_size,
                            lstm_sizes=[lstm_size, lstm_size], dense_size=dense_size, dense_layers=dense_layers,
                            dropout_rate=dropout_rate)
 
+    info("Loading training data from", training_data_dir)
+    X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, lowercase=vocab_is_lowercase)
+
     checkpoint_filepath = "weights.lstm%d.batch%d.glove%d.sample%d.vocab%d.%s.hdf5" % (
         lstm_size, batch_size, glove_dims, sample_size, vocab_size, "default")
     checkpoint_filepath = os.path.join(checkpoint_dir, checkpoint_filepath)
-    print("Will write checkpoints to:", checkpoint_filepath)
-    checkpoint = K.callbacks.ModelCheckpoint(checkpoint_filepath, verbose=2, save_best_only=True, monitor='loss')
+    info("Will write checkpoints to:", checkpoint_filepath)
+    checkpoint = keras.callbacks.ModelCheckpoint(checkpoint_filepath, verbose=2, save_best_only=True, monitor='loss')
 
     def decay(epoch):
         return learning_rate_initial * math.pow(learning_rate_decay_rate,
@@ -174,7 +183,7 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
 
     decay_scheduler = LearningRateScheduler(decay, verbose=1)
 
-    opt = K.optimizers.Adam(lr=0.0)
+    opt = keras.optimizers.Adam(lr=0.0)
     model.compile(opt, loss='categorical_crossentropy', metrics=["accuracy"])
 
     train_seq = util.NegativeSamplingPermutedSequence(data_x=X, data_xu=Xu, seqlen=seqlen, batch_size=batch_size,
@@ -191,24 +200,32 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
 @option("--model_file", type=file_path)
 @option("--num_words_to_sample", default=5)
 @option("--init_text", prompt="Initialization text", type=str)
-def sample(vocab_file, vocab_is_lowercase, seqlen, sample_size, vocab_size, model_file, num_words_to_sample, init_text):
+def sample(vocab_file, vocab_is_lowercase, seqlen, vocab_size, model_file, num_words_to_sample, init_text):
     cols = 80
+    info("Loading vocabulary")
     words, vocab = util.load_vocab(vocab_file, vocab_size)
-    model = K.models.load_model(model_file)
+
 
     t2s = Text2Seq(vocab, vocab_is_lowercase=vocab_is_lowercase)
     X, Xu = t2s.toseq(init_text)
     gen = util.padleft(X, seqlen).tolist()
     genu = util.padleft(Xu, seqlen).tolist()
 
+    model_train = keras.models.load_model(model_file)
+    model = make_predict_model(model_train)
+
+    info("=" * 100)
     for i, idx in enumerate(gen):
         word = "<UNK>"
-        if genu[i][0] < 0.1: word = words[idx]
-        if genu[i][1] > 0.9: word = util.capitalize(word)
+        if genu[i][0] < 0.1:
+            word = words[idx]
+        if genu[i][1] > 0.9:
+            word = util.capitalize(word)
         sys.stdout.write(word + " ")
         sys.stdout.flush()
 
-    print("=" * 100)
+    print()
+    info("=" * 100)
     UNK_IDX = len(words)
 
     punct = ":-;.,!?'\")"
@@ -248,6 +265,8 @@ def sample(vocab_file, vocab_is_lowercase, seqlen, sample_size, vocab_size, mode
         sys.stdout.flush()
 
         prev_word = word
+
+    print()
 
 
 if __name__ == "__main__":

@@ -7,20 +7,18 @@ python3 /app/src/artstat/models/onehot.py train \
 --vocab_file=vocab_lower.txt \
 --vocab_size=10000 \
 --seqlen=64 \
---sample_size=10 \
---batch_size=128 \
---learning_rate_decay_period=5 \
+--sample_size=5 \
+--batch_size=64 \
+--learning_rate_decay_period=1 \
 --learning_rate_decay_rate=0.9 \
---learning_rate_initial=0.003 \
+--learning_rate_initial=0.001 \
 --dropout_rate=0.01 \
---dense_layers=5 \
---dense_size=256 \
+--dense_layers=10 \
+--dense_size=128 \
 --lstm_size=256 \
 --checkpoint_dir=/app/notebooks/checkpoints/m2 \
 --training_data_dir=/data/local/artstat/train \
 --num_epochs=100 \
---starting_epoch=0 \
---epochs_per_dataset=32 \
---starting_model_file=/app/notebooks/checkpoints/m2/1.hdf5
-
-#weights.lstm256.batch128.glove300.sample10.vocab10000.default.hdf5
+--starting_epoch=8 \
+--epochs_per_dataset=128 \
+--starting_model_file=/app/notebooks/checkpoints/m2/weights.lstm256.batch64.glove300.sample5.vocab10000.default.hdf5

@@ -6,6 +6,9 @@ VOLUME /data/local
 
 ENV PYTHONPATH=/app/src:$PYTHONPATH
 
+RUN pip3 install aiofiles
+
+
 WORKDIR /app
 
 ENV LC_ALL=C.UTF-8

@@ -11,6 +11,14 @@
             </list>
           </settings>
         </remote-mappings>
+        <remote-mappings server-id="python@docker://artstat-dev:latest/python3">
+          <settings>
+            <list>
+              <mapping local-root="$USER_HOME$/data/shared" remote-root="/data/shared" />
+              <mapping local-root="$USER_HOME$/data/local" remote-root="/data/local" />
+            </list>
+          </settings>
+        </remote-mappings>
       </list>
     </list>
   </component>
