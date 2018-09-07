@@ -9,9 +9,9 @@ python3 /app/src/artstat/models/onehot.py train \
 --seqlen=64 \
 --sample_size=10 \
 --batch_size=128 \
---learning_rate_decay_period=1 \
---learning_rate_decay_rate=0.98 \
---learning_rate_initial=0.01 \
+--learning_rate_decay_period=10 \
+--learning_rate_decay_rate=0.5 \
+--learning_rate_initial=0.0001 \
 --dropout_rate=0.00 \
 --dense_layers=4 \
 --dense_size=300 \
@@ -19,8 +19,8 @@ python3 /app/src/artstat/models/onehot.py train \
 --lstm_layers=1 \
 --checkpoint_dir=/app/notebooks/checkpoints/m2 \
 --training_data_dir=/data/local/artstat/train \
---num_epochs=100 \
---starting_epoch=29 \
+--num_epochs=1000 \
+--starting_epoch=0 \
 --epochs_per_dataset=48 \
 --starting_model_file=/app/notebooks/checkpoints/m2/weights.lstm1024.batch128.glove300.sample10.vocab10000.default.hdf5
 
