@@ -27,3 +27,7 @@ python3 /app/src/artstat/models/onehot.py train \
 
 #--starting_model_file=/app/notebooks/checkpoints/m2/weights.lstm1024.batch128.glove300.sample10.vocab10000.default.hdf5
 #--training_max_files=3000 \
+
+#lr=0.01, period=10, rate=0.7, dropout=0.1, floor=0.00005
+
+#after epoch 49, lr=0.0024; loss=1.1636, acc=0.8712

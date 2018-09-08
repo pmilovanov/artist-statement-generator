@@ -1,17 +1,13 @@
-FROM tensorflow/tensorflow:latest-gpu
+FROM tensorflow/tensorflow:latest-gpu-py3
 
 
-RUN apt update
-RUN apt install -y python3-pip
+# Install python3.6
+RUN pip install keras
+RUN pip install nltk tqdm unidecode click h5py pytest
+RUN pip install regex
 
-RUN pip3 install tensorflow-gpu
-RUN pip3 install keras
-
-RUN pip3 install nltk tqdm unidecode click h5py pytest
-RUN pip3 install regex
-
-RUN pip3 install terminado jupyter
-RUN pip3 install jupyter-emacskeys
+RUN pip install terminado jupyter
+RUN pip install jupyter-emacskeys
 
 ENV PYTHONPATH=/app/src:$PYTHONPATH
 
