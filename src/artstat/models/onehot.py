@@ -9,6 +9,7 @@ import click
 import keras
 import numpy as np
 import tensorflow as tf
+from box import Box
 from click import option
 from keras import Input, Model
 from keras.callbacks import LearningRateScheduler
@@ -245,17 +246,19 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
 @opt("--model_file", type=file_path)
 @opt("--num_words_to_sample", default=5)
 @opt("--init_text", prompt="Initialization text", type=str)
-def sample(vocab_file, vocab_is_lowercase, seqlen, vocab_size, model_file, num_words_to_sample, init_text):
+# def sample(vocab_file, vocab_is_lowercase, seqlen, vocab_size, model_file, num_words_to_sample, init_text):
+def sample(**kwargs):
+    p = Box(kwargs)
     cols = 80
     info("Loading vocabulary")
-    words, vocab = util.load_vocab(vocab_file, vocab_size)
+    words, vocab = util.load_vocab(p.vocab_file, p.vocab_size)
 
-    t2s = Text2Seq(vocab, vocab_is_lowercase=vocab_is_lowercase)
-    X, Xu = t2s.toseq(init_text)
-    gen = util.padleft(X, seqlen).tolist()
-    genu = util.padleft(Xu, seqlen).tolist()
+    t2s = Text2Seq(vocab, vocab_is_lowercase=p.vocab_is_lowercase)
+    X, Xu = t2s.toseq(p.init_text)
+    gen = util.padleft(X, p.seqlen).tolist()
+    genu = util.padleft(Xu, p.seqlen).tolist()
 
-    model_train = keras.models.load_model(model_file)
+    model_train = keras.models.load_model(p.model_file)
     model = make_predict_model(model_train)
 
     info("=" * 100)
@@ -280,13 +283,13 @@ def sample(vocab_file, vocab_is_lowercase, seqlen, vocab_size, model_file, num_w
     word = ""
 
     chars = 0  # chars printed out on this line so far
-    tX = np.zeros((1, seqlen), dtype="int32")
-    tXu = np.zeros((1, seqlen, 2), dtype="float32")
+    tX = np.zeros((1, p.seqlen), dtype="int32")
+    tXu = np.zeros((1, p.seqlen, 2), dtype="float32")
     results = []
 
-    for j in range(num_words_to_sample):
-        tX[0] = np.array(gen[-seqlen:], "int32")
-        tXu[0] = np.array(genu[-seqlen:], "float32")
+    for j in range(p.num_words_to_sample):
+        tX[0] = np.array(gen[-p.seqlen:], "int32")
+        tXu[0] = np.array(genu[-p.seqlen:], "float32")
         z = model.predict([tX, tXu])
         scores, aux = z[0][:-2], z[0][-2:]
         idx = UNK_IDX
