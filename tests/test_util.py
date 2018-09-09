@@ -228,4 +228,4 @@ def test_unknown_word_percentage():
         [1, 0]
         ])
 
-    assert 0.6 == util.unknown_word_percentage(Xu)
+    assert 60.0 == util.unknown_word_percentage(Xu)

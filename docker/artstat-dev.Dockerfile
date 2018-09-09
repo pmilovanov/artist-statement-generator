@@ -22,4 +22,8 @@ EXPOSE 9999
 #####################
 
 RUN pip install google-cloud-datastore
+RUN pip install google-cloud-storage
 
+ENV GOOGLE_APPLICATION_CREDENTIALS="/config/pm-artstat-auth.json"
+
+RUN pip install python-box
