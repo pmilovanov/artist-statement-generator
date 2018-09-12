@@ -1,0 +1,1 @@
+src/artstat/models/sample_onehot.sh

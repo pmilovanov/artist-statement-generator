@@ -1,0 +1,1 @@
+src/artstat/models/train_onehot.sh
