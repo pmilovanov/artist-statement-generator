@@ -1,1 +1,8 @@
 vocab.txt
+hist.txt
+
+env
+notebooks/checkpoints/*
+notebooks/.ipynb_checkpoints
+**/.pytest_cache
+*__pycache__*
