@@ -2,8 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b3be677d-ff09-407e-991a-d74be738730c" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/tests/test_tracking.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/artstat/tracking.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/artstat/tracking.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/artstat/models/onehot_cmle.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artstat.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artstat.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/docker/artstat-cmle/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/docker-build.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run-local-docker.sh" beforeDir="false" afterPath="$PROJECT_DIR$/run-local-docker.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/artstat/models/onehot.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/artstat/models/onehot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/artstat/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/artstat/util.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/artstat/vocab.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/artstat/vocab.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,12 +22,12 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/artstat$clicktest.coverage" NAME="clicktest Coverage Results" MODIFIED="1536161634439" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/opt/project/src/artstat/models" />
-    <SUITE FILE_PATH="coverage/artstat$datastore_helloworld.coverage" NAME="datastore_helloworld Coverage Results" MODIFIED="1536506787185" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/opt/project/src/artstat" />
-    <SUITE FILE_PATH="coverage/artstat$pytest_for_test_util_test_ShiftByOnePermutedSequence.coverage" NAME="pytest for test_util.test_ShiftByOnePermutedSequence Coverage Results" MODIFIED="1535084222274" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/artstat$tests.coverage" NAME="tests Coverage Results" MODIFIED="1536424459055" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/artstat$pytest_for_test_util_test_ShiftByOnePermutedSequence.coverage" NAME="pytest for test_util.test_ShiftByOnePermutedSequence Coverage Results" MODIFIED="1535084222274" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/artstat$pytest_in_test_datastore_py.coverage" NAME="pytest in test_datastore.py Coverage Results" MODIFIED="1536426089396" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src/artstat" />
+    <SUITE FILE_PATH="coverage/artstat$clicktest.coverage" NAME="clicktest Coverage Results" MODIFIED="1536161634439" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/opt/project/src/artstat/models" />
     <SUITE FILE_PATH="coverage/artstat$pytest_for_test_util_test_loadvocab.coverage" NAME="pytest for test_util.test_loadvocab Coverage Results" MODIFIED="1535082579729" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/artstat$datastore_helloworld.coverage" NAME="datastore_helloworld Coverage Results" MODIFIED="1536506787185" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="/opt/project/src/artstat" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -33,273 +43,111 @@
     <expand />
     <select />
   </component>
-  <component name="FUSProjectUsageTrigger">
-    <session id="-830254716">
-      <usages-collector id="statistics.lifecycle.project">
-        <counts>
-          <entry key="project.closed" value="4" />
-          <entry key="project.open.time.0" value="1" />
-          <entry key="project.open.time.15" value="1" />
-          <entry key="project.open.time.33" value="1" />
-          <entry key="project.open.time.6" value="2" />
-          <entry key="project.opened" value="5" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.open">
-        <counts>
-          <entry key="Dockerfile" value="6" />
-          <entry key="dockerignore" value="1" />
-          <entry key="ipynb" value="8" />
-          <entry key="py" value="25" />
-          <entry key="sh" value="8" />
-          <entry key="test_vocab" value="1" />
-          <entry key="txt" value="10" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.open">
-        <counts>
-          <entry key="Bash" value="7" />
-          <entry key="Dockerfile" value="6" />
-          <entry key="IPNB" value="8" />
-          <entry key="PLAIN_TEXT" value="13" />
-          <entry key="Python" value="25" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.extensions.edit">
-        <counts>
-          <entry key="Dockerfile" value="985" />
-          <entry key="Python Console" value="3604" />
-          <entry key="clicktest" value="72" />
-          <entry key="dockerignore" value="43" />
-          <entry key="dummy" value="74" />
-          <entry key="lstm_layers" value="1" />
-          <entry key="normalize_unicode" value="5" />
-          <entry key="py" value="29600" />
-          <entry key="separate_punctuation" value="6" />
-          <entry key="sh" value="2096" />
-          <entry key="test_vocab" value="19" />
-          <entry key="txt" value="4222" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.file.types.edit">
-        <counts>
-          <entry key="Bash" value="2026" />
-          <entry key="Dockerfile" value="985" />
-          <entry key="PLAIN_TEXT" value="4428" />
-          <entry key="Python" value="33288" />
-        </counts>
-      </usages-collector>
-      <usages-collector id="statistics.js.language.service.starts" />
-      <usages-collector id="statistics.kubernetes.usages" />
-    </session>
-  </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.5">
-      <split-first>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/run-local-docker.sh">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="350">
-                  <caret line="14" selection-start-line="14" selection-end-line="14" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/artstat/util.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-5214">
-                  <folding>
-                    <element signature="e#19#33#0" expanded="true" />
-                    <marker date="1536251930547" expanded="true" signature="1027:1032" ph="..." />
-                    <marker date="1536251930547" expanded="true" signature="3032:3038" ph="..." />
-                    <marker date="1536251930547" expanded="true" signature="6003:6006" ph="..." />
-                    <marker date="1536251930547" expanded="true" signature="6730:7009" ph="..." />
-                    <marker date="1536251930547" expanded="true" signature="7083:7183" ph="..." />
-                    <marker date="1536251930547" expanded="true" signature="7970:8094" ph="..." />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/1405239563/tqdm/_tqdm.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="446">
-                  <caret line="642" column="8" selection-start-line="642" selection-start-column="8" selection-end-line="642" selection-end-column="8" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/1405239563/click/decorators.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="671">
-                  <caret line="155" column="4" selection-start-line="155" selection-start-column="4" selection-end-line="155" selection-end-column="4" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/notebooks/lstm-gen-onehot.ipynb">
-              <provider selected="true" editor-type-id="ipnb-editor">
-                <state>
-                  <selected id="11" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/artstat/models/sample_onehot.sh">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="200">
-                  <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/201545290/tokenize.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="398">
-                  <caret line="453" selection-start-line="453" selection-end-line="453" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/docker/artstat-dev.Dockerfile">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="500">
-                  <caret line="20" selection-start-line="20" selection-end-line="20" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/src/artstat/tracking.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="225">
-                  <caret line="9" column="42" selection-start-line="9" selection-start-column="42" selection-end-line="9" selection-end-column="42" />
-                  <folding>
-                    <element signature="e#0#19#0" expanded="true" />
-                    <marker date="1536542625298" expanded="true" signature="61:66" ph="..." />
-                    <marker date="1536542625298" expanded="true" signature="178:271" ph="..." />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/artstat/datastore_helloworld.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="425">
-                  <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-first>
-      <split-second>
-        <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/docker/artstat-dev.Dockerfile">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="700">
-                  <caret line="28" column="26" selection-start-line="28" selection-start-column="26" selection-end-line="28" selection-end-column="26" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/docker/artstat-base.Dockerfile">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="375">
-                  <caret line="15" selection-start-line="15" selection-end-line="15" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/docker-build.sh">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="425">
-                  <caret line="17" column="9" selection-start-line="17" selection-start-column="9" selection-end-line="17" selection-end-column="9" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/tests/test_util.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="5450">
-                  <caret line="216" column="26" selection-start-line="216" selection-start-column="26" selection-end-line="216" selection-end-column="26" />
-                  <folding>
-                    <element signature="e#0#18#0" expanded="true" />
-                    <marker date="1536424456951" expanded="true" signature="2624:2629" ph="..." />
-                    <marker date="1536424456951" expanded="true" signature="2624:3002" ph="..." />
-                    <marker date="1536424456951" expanded="true" signature="4811:4816" ph="..." />
-                    <marker date="1536424456951" expanded="true" signature="6190:6191" ph="..." />
-                    <marker date="1536424456951" expanded="true" signature="6862:6867" ph="..." />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/artstat/models/train_onehot.sh">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="800">
-                  <caret line="32" column="38" selection-start-line="32" selection-start-column="38" selection-end-line="32" selection-end-column="38" />
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/artstat/models/onehot.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="801">
-                  <caret line="305" column="34" lean-forward="true" selection-start-line="305" selection-start-column="34" selection-end-line="305" selection-end-column="34" />
-                  <folding>
-                    <element signature="e#0#11#0" expanded="true" />
-                    <marker date="1536508643018" expanded="true" signature="2821:2826" ph="..." />
-                    <marker date="1536508643018" expanded="true" signature="3947:4064" ph="..." />
-                    <marker date="1536508643018" expanded="true" signature="13174:13176" ph="..." />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/tests/test_tracking.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="150">
-                  <caret line="6" selection-start-line="6" selection-end-line="6" />
-                  <folding>
-                    <marker date="1536542394072" expanded="true" signature="59:60" ph="..." />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/src/artstat/models/clicktest.py">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="500">
-                  <caret line="20" selection-start-line="20" selection-end-line="20" />
-                  <folding>
-                    <marker date="1536162214115" expanded="true" signature="170:171" ph="..." />
-                    <marker date="1536162214115" expanded="true" signature="248:294" ph="..." />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-        </leaf>
-      </split-second>
-    </splitter>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docker-build.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="378">
+              <caret line="21" selection-start-line="21" selection-end-line="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/run-local-docker.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="10" column="26" selection-start-line="10" selection-start-column="26" selection-end-line="10" selection-end-column="26" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/artstat/util.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="394">
+              <caret line="169" column="33" selection-start-line="169" selection-start-column="33" selection-end-line="169" selection-end-column="33" />
+              <folding>
+                <element signature="e#19#33#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/artstat/vocab.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="524">
+              <caret line="116" column="28" lean-forward="true" selection-start-line="116" selection-start-column="28" selection-end-line="116" selection-end-column="28" />
+              <folding>
+                <element signature="e#20#32#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/venv/pyvenv.cfg">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="54">
+              <caret line="3" selection-start-line="3" selection-end-line="3" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/artstat/models/train_onehot.sh">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="576">
+              <caret line="32" column="38" selection-start-line="32" selection-start-column="38" selection-end-line="32" selection-end-column="38" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/artstat/models/onehot.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1716">
+              <caret line="179" column="6" selection-start-line="179" selection-start-column="6" selection-end-line="179" selection-end-column="6" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/artstat/models/onehot_cmle.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1002">
+              <caret line="86" column="1" selection-start-line="86" selection-start-column="1" selection-end-line="86" selection-end-column="1" />
+              <folding>
+                <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/requirements.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="450">
+              <caret line="26" column="18" selection-start-line="26" selection-start-column="18" selection-end-line="26" selection-end-column="18" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docker/artstat-cmle/Dockerfile">
+          <provider selected="true" editor-type-id="text-editor">
+            <state>
+              <caret column="33" selection-start-column="33" selection-end-column="33" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -324,10 +172,10 @@
       <find>keras</find>
       <find>gather_nd</find>
       <find>K.</find>
-      <find>K.</find>
       <find>initial_</find>
       <find>option</find>
       <find>,</find>
+      <find>open(</find>
     </findStrings>
     <replaceStrings>
       <replace>float32</replace>
@@ -352,38 +200,34 @@
         <option value="$PROJECT_DIR$/tests/testdata/test_text.txt" />
         <option value="$PROJECT_DIR$/.dockerignore" />
         <option value="$PROJECT_DIR$/docker-local.sh" />
-        <option value="$PROJECT_DIR$/src/artstat/vocab.py" />
         <option value="$PROJECT_DIR$/src/artstat/models/clicktest.py" />
-        <option value="$PROJECT_DIR$/Dockerfile" />
-        <option value="$PROJECT_DIR$/docker-build.sh" />
-        <option value="$PROJECT_DIR$/src/artstat/util.py" />
         <option value="$PROJECT_DIR$/src/artstat/models/train_onehot.sh" />
         <option value="$PROJECT_DIR$/src/artstat/models/sample_onehot.sh" />
         <option value="$PROJECT_DIR$/docker/artstat-base.Dockerfile" />
         <option value="$PROJECT_DIR$/tests/test_util.py" />
         <option value="$PROJECT_DIR$/src/artstat/test_datastore.py" />
-        <option value="$PROJECT_DIR$/run-local-docker.sh" />
         <option value="$PROJECT_DIR$/docker/artstat-dev.Dockerfile" />
-        <option value="$PROJECT_DIR$/src/artstat/models/onehot.py" />
         <option value="$PROJECT_DIR$/tests/test_tracking.py" />
         <option value="$PROJECT_DIR$/src/artstat/tracking.py" />
+        <option value="$PROJECT_DIR$/Dockerfile" />
+        <option value="$PROJECT_DIR$/docker-build.sh" />
+        <option value="$PROJECT_DIR$/src/artstat/models/onehot.py" />
+        <option value="$PROJECT_DIR$/src/artstat/util.py" />
+        <option value="$PROJECT_DIR$/src/artstat/models/onehot_cmle.py" />
+        <option value="$PROJECT_DIR$/docker/artstat-cmle/Dockerfile" />
+        <option value="$PROJECT_DIR$/run-local-docker.sh" />
+        <option value="$PROJECT_DIR$/src/artstat/vocab.py" />
       </list>
     </option>
-  </component>
-  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
-  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
-  <component name="JsGulpfileManager">
-    <detection-done>true</detection-done>
-    <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="JsbtTreeLayoutManager">
     <layout place="tools.popupGrunt">
       <scroll-view-position x="0" y="0" />
     </layout>
   </component>
-  <component name="ProjectFrameBounds" extendedState="4">
-    <option name="width" value="2606" />
-    <option name="height" value="2121" />
+  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
+    <option name="width" value="1680" />
+    <option name="height" value="1050" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -446,6 +290,7 @@
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
+      <autoscrollFromSource ProjectPane="true" />
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
@@ -470,12 +315,36 @@
             <path>
               <item name="artstat" type="b2602c69:ProjectViewProjectNode" />
               <item name="artstat" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="artstat" type="b2602c69:ProjectViewProjectNode" />
+              <item name="artstat" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="gallery-pr" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="artstat" type="b2602c69:ProjectViewProjectNode" />
+              <item name="artstat" type="462c0819:PsiDirectoryNode" />
               <item name="docker" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="artstat" type="b2602c69:ProjectViewProjectNode" />
               <item name="artstat" type="462c0819:PsiDirectoryNode" />
-              <item name="notebooks" type="462c0819:PsiDirectoryNode" />
+              <item name="docker" type="462c0819:PsiDirectoryNode" />
+              <item name="artstat-base" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="artstat" type="b2602c69:ProjectViewProjectNode" />
+              <item name="artstat" type="462c0819:PsiDirectoryNode" />
+              <item name="docker" type="462c0819:PsiDirectoryNode" />
+              <item name="artstat-cmle" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="artstat" type="b2602c69:ProjectViewProjectNode" />
+              <item name="artstat" type="462c0819:PsiDirectoryNode" />
+              <item name="docker" type="462c0819:PsiDirectoryNode" />
+              <item name="artstat-dev" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="artstat" type="b2602c69:ProjectViewProjectNode" />
@@ -500,6 +369,11 @@
               <item name="artstat" type="462c0819:PsiDirectoryNode" />
               <item name="tests" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="artstat" type="b2602c69:ProjectViewProjectNode" />
+              <item name="artstat" type="462c0819:PsiDirectoryNode" />
+              <item name="venv" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -510,7 +384,7 @@
     <property name="SearchEverywhereHistoryKey" value="test&#9;FILE&#9;file:///home/pmilovanov/hg/dl/artstat/tests/test_util.py&#10;run-&#9;FILE&#9;file:///home/pmilovanov/hg/dl/artstat/run-local-docker.sh&#10;util&#9;null&#9;null&#10;vo&#9;FILE&#9;file:///home/pmilovanov/hg/dl/artstat/src/artstat/vocab.py" />
     <property name="ToolWindowTerminal.ShowToolbar" value="false" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/artstat/test_datastore.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -518,26 +392,6 @@
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="artstat" is-module-sdk="true">
-        <option name="mappingSettings">
-          <PathMappingSettings>
-            <option name="pathMappings">
-              <list>
-                <mapping local-root="$USER_HOME$/data/local" remote-root="/data/local" />
-                <mapping local-root="$USER_HOME$/data/shared" remote-root="/data/shared" />
-              </list>
-            </option>
-          </PathMappingSettings>
-        </option>
-        <option name="mappings">
-          <PathMappingSettings>
-            <option name="pathMappings">
-              <list>
-                <mapping local-root="$USER_HOME$/data/local" remote-root="/data/local" />
-                <mapping local-root="$USER_HOME$/data/shared" remote-root="/data/shared" />
-              </list>
-            </option>
-          </PathMappingSettings>
-        </option>
         <option name="myUseModuleSdk" value="true" />
         <option name="myModuleName" value="artstat" />
       </console-settings>
@@ -545,16 +399,17 @@
     <option name="myUseExistingConsole" value="true" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/artstat/models" />
+      <recent name="$PROJECT_DIR$/docker" />
+      <recent name="$PROJECT_DIR$/tests/testdata" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/docker/artstat-cmle" />
       <recent name="$PROJECT_DIR$/docker" />
       <recent name="$PROJECT_DIR$/tests/testdata/dir1" />
       <recent name="$PROJECT_DIR$/src/artstat" />
       <recent name="$PROJECT_DIR$/src" />
-      <recent name="$PROJECT_DIR$/testdata" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/docker" />
-      <recent name="$PROJECT_DIR$/tests/testdata" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -631,6 +486,7 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
         <env name="LC_ALL" value="C.UTF-8" />
         <env name="LANG" value="C.UTF-8" />
       </envs>
@@ -681,6 +537,9 @@
       <module name="artstat" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="/opt/project/src/artstat" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -736,14 +595,11 @@
           <option name="JSONFilePath" value="" />
           <option name="buildOnly" value="true" />
           <option name="command" value="" />
-          <option name="commandLineOptions" value="" />
           <option name="containerName" value="" />
           <option name="entrypoint" value="" />
           <option name="imageTag" value="" />
+          <option name="commandLineOptions" value="" />
           <option name="sourceFilePath" value="Dockerfile" />
-          <option name="startBrowserSettings">
-            <browser url="http://127.0.0.1" />
-          </option>
         </settings>
       </deployment>
       <method v="2" />
@@ -857,10 +713,10 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.clicktest" />
-      <item itemvalue="Python tests.tests" />
       <item itemvalue="Docker.Dockerfile" />
+      <item itemvalue="Python.clicktest" />
       <item itemvalue="Python.datastore_helloworld" />
+      <item itemvalue="Python tests.tests" />
       <item itemvalue="Python tests.pytest for test_util.test_loadvocab" />
       <item itemvalue="Python tests.pytest for test_util.test_shift_by_one_permuted_sequence" />
       <item itemvalue="Python tests.pytest in datastore_helloworld.py" />
@@ -885,6 +741,9 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1534287068567</updated>
+      <workItem from="1544036337189" duration="1021000" />
+      <workItem from="1544037866740" duration="24000" />
+      <workItem from="1544037907081" duration="9112000" />
     </task>
     <task id="LOCAL-00009" summary="Now able to load all test/train data as seqences, ready for feeding into the NN!">
       <created>1534447947567</created>
@@ -1264,6 +1123,9 @@
       <configuration name="pytest in test_datastore.py" configurationId="tests" />
     </history-entry>
   </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="10157000" />
+  </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
       <is-autoscroll-to-source value="true" />
@@ -1274,32 +1136,32 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="2606" height="2121" extended-state="4" />
+    <frame x="0" y="0" width="1680" height="1050" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4992722" visible="true" weight="0.15677966" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4992722" visible="true" weight="0.1916972" />
       <window_info id="Favorites" order="1" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4997396" weight="0.32926235" />
+      <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4992057" weight="0.32869694" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.5701079" visible="true" weight="0.32488596" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39960918" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3298969" />
-      <window_info anchor="bottom" id="Docker" order="7" sideWeight="0.49558303" weight="0.31424227" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" sideWeight="0.49558303" weight="0.31424227" />
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50130546" side_tool="true" weight="0.3298969" />
-      <window_info anchor="bottom" id="Terminal" order="11" sideWeight="0.42989215" side_tool="true" visible="true" weight="0.32488596" />
-      <window_info anchor="bottom" id="Python Console" order="12" sideWeight="0.49690813" weight="0.5083629" />
-      <window_info anchor="bottom" id="Messages" order="13" weight="0.3298969" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50130546" side_tool="true" weight="0.329429" />
+      <window_info anchor="bottom" id="Python Console" order="11" sideWeight="0.49483716" weight="0.20644216" />
+      <window_info anchor="bottom" id="Messages" order="12" weight="0.3298969" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.5214932" />
       <window_info anchor="right" id="SciView" order="3" weight="0.3297736" />
       <window_info anchor="right" x="0" y="0" width="554" height="1921" id="Documentation" order="4" side_tool="true" weight="0.3298712" />
       <window_info anchor="right" id="Database" order="5" />
-      <window_info anchor="right" x="2429" y="491" width="464" height="841" id="Structure" order="6" sideWeight="0.5007278" side_tool="true" type="FLOATING" weight="0.08289054" />
+      <window_info anchor="right" id="Terminal" order="6" sideWeight="0.5007943" side_tool="true" weight="0.42673993" />
+      <window_info anchor="right" x="991" y="264" width="468" height="439" id="Structure" order="7" sideWeight="0.5007278" side_tool="true" type="FLOATING" weight="0.08289054" />
     </layout>
     <layout-to-restore>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4992722" visible="true" weight="0.17216583" />
@@ -1329,9 +1191,6 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
-  </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
@@ -1370,9 +1229,6 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/tests/__init__.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/vocab.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/notebooks/lstm-gen.ipynb">
@@ -1417,31 +1273,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/1405239563/click/decorators.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="671">
-          <caret line="155" column="4" selection-start-line="155" selection-start-column="4" selection-end-line="155" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/201545290/tokenize.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="398">
-          <caret line="453" selection-start-line="453" selection-end-line="453" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/artstat/models/clicktest.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="500">
-          <caret line="20" selection-start-line="20" selection-end-line="20" />
-          <folding>
-            <marker date="1536162214115" expanded="true" signature="170:171" ph="..." />
-            <marker date="1536162214115" expanded="true" signature="248:294" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/1405239563/click/decorators.py" />
+    <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/201545290/tokenize.py" />
+    <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/201545290/pipes.py" />
+    <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/1405239563/tqdm/_tqdm.py" />
+    <entry file="file://$PROJECT_DIR$/docker/artstat-base.Dockerfile" />
+    <entry file="file://$PROJECT_DIR$/docker/artstat-dev.Dockerfile" />
     <entry file="file://$PROJECT_DIR$/notebooks/lstm-gen-onehot.ipynb">
       <provider selected="true" editor-type-id="ipnb-editor">
         <state>
@@ -1449,140 +1286,164 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/201545290/pipes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2278">
-          <caret line="141" column="8" selection-start-line="141" selection-start-column="8" selection-end-line="141" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.PyCharm2018.2/system/remote_sources/1529220332/1405239563/tqdm/_tqdm.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="446">
-          <caret line="642" column="8" selection-start-line="642" selection-start-column="8" selection-end-line="642" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/artstat/vocab.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1209">
-          <caret line="51" column="50" selection-start-line="51" selection-start-column="50" selection-end-line="51" selection-end-column="50" />
-          <folding>
-            <element signature="e#20#32#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/artstat/util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5214">
-          <folding>
-            <element signature="e#19#33#0" expanded="true" />
-            <marker date="1536251930547" expanded="true" signature="1027:1032" ph="..." />
-            <marker date="1536251930547" expanded="true" signature="3032:3038" ph="..." />
-            <marker date="1536251930547" expanded="true" signature="6003:6006" ph="..." />
-            <marker date="1536251930547" expanded="true" signature="6730:7009" ph="..." />
-            <marker date="1536251930547" expanded="true" signature="7083:7183" ph="..." />
-            <marker date="1536251930547" expanded="true" signature="7970:8094" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/artstat/models/train_onehot.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="800">
-          <caret line="32" column="38" selection-start-line="32" selection-start-column="38" selection-end-line="32" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/artstat/models/sample_onehot.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
+        <state>
           <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docker/artstat-base.Dockerfile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="15" selection-start-line="15" selection-end-line="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docker-build.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="17" column="9" selection-start-line="17" selection-start-column="9" selection-end-line="17" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_util.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5450">
-          <caret line="216" column="26" selection-start-line="216" selection-start-column="26" selection-end-line="216" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <marker date="1536424456951" expanded="true" signature="2624:2629" ph="..." />
-            <marker date="1536424456951" expanded="true" signature="2624:3002" ph="..." />
-            <marker date="1536424456951" expanded="true" signature="4811:4816" ph="..." />
-            <marker date="1536424456951" expanded="true" signature="6190:6191" ph="..." />
-            <marker date="1536424456951" expanded="true" signature="6862:6867" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/docker/artstat-dev.Dockerfile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="500">
-          <caret line="20" selection-start-line="20" selection-end-line="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/artstat/models/onehot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="801">
-          <caret line="305" column="34" lean-forward="true" selection-start-line="305" selection-start-column="34" selection-end-line="305" selection-end-column="34" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <marker date="1536508643018" expanded="true" signature="2821:2826" ph="..." />
-            <marker date="1536508643018" expanded="true" signature="3947:4064" ph="..." />
-            <marker date="1536508643018" expanded="true" signature="13174:13176" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/run-local-docker.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="14" selection-start-line="14" selection-end-line="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/artstat/datastore_helloworld.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="17" lean-forward="true" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_tracking.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="6" selection-start-line="6" selection-end-line="6" />
-          <folding>
-            <marker date="1536542394072" expanded="true" signature="59:60" ph="..." />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/artstat/tracking.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="9" column="42" selection-start-line="9" selection-start-column="42" selection-end-line="9" selection-end-column="42" />
+        <state>
+          <caret line="11" selection-start-line="11" selection-end-line="11" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
-            <marker date="1536542625298" expanded="true" signature="61:66" ph="..." />
-            <marker date="1536542625298" expanded="true" signature="178:271" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/artstat/datastore_helloworld.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret line="17" selection-start-line="17" selection-end-line="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3798">
+          <caret line="216" column="26" selection-start-line="216" selection-start-column="26" selection-end-line="216" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/artstat/models/clicktest.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="20" selection-start-line="20" selection-end-line="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/vocab.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3904" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_tracking.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sample.sh">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train.sh">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docker/artstat-dev/Dockerfile">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docker/artstat-base/Dockerfile">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/artstat/models/train_onehot.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="576">
+          <caret line="32" column="38" selection-start-line="32" selection-start-column="38" selection-end-line="32" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/artstat/models/onehot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1716">
+          <caret line="179" column="6" selection-start-line="179" selection-start-column="6" selection-end-line="179" selection-end-column="6" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.7/site-packages/tensorflow/python/lib/io/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.7/site-packages/tensorflow/python/lib/io/python_io.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-33" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.7/site-packages/tensorflow/python/lib/io/file_io.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="16" column="25" selection-start-line="16" selection-start-column="25" selection-end-line="16" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="26" column="18" selection-start-line="26" selection-start-column="18" selection-end-line="26" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/artstat/util.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="394">
+          <caret line="169" column="33" selection-start-line="169" selection-start-column="33" selection-end-line="169" selection-end-column="33" />
+          <folding>
+            <element signature="e#19#33#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/artstat/models/onehot_cmle.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1002">
+          <caret line="86" column="1" selection-start-line="86" selection-start-column="1" selection-end-line="86" selection-end-column="1" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/pyvenv.cfg">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docker-build.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="21" selection-start-line="21" selection-end-line="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docker/artstat-cmle/Dockerfile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="33" selection-start-column="33" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/run-local-docker.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="10" column="26" selection-start-line="10" selection-start-column="26" selection-end-line="10" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/artstat/vocab.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="524">
+          <caret line="116" column="28" lean-forward="true" selection-start-line="116" selection-start-column="28" selection-end-line="116" selection-end-column="28" />
+          <folding>
+            <element signature="e#20#32#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -2,6 +2,9 @@
 
 IMAGE=$1
 
+DOCKER=docker
+#DOCKER=nvidia-docker
+
 if [[ -z "$IMAGE" ]]; then
 echo "Usage: $0 <docker-image-name>" >&2
 echo >&2
@@ -11,7 +14,7 @@ fi
 
 df="docker/$IMAGE/Dockerfile"
 if [[ -f "$df" ]]; then
-  nvidia-docker build docker/$IMAGE -t "$IMAGE"
+  $DOCKER build docker/$IMAGE -t "$IMAGE"
   exit 0
 fi
 

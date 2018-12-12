@@ -6,20 +6,20 @@ import sys
 import textwrap
 
 import click
-import keras
 import numpy as np
+import tensorflow as tf
+import tensorflow.keras as keras
 from box import Box
-from keras import Input, Model
-from keras.callbacks import LearningRateScheduler
-from keras.layers import (Activation, BatchNormalization, Concatenate, CuDNNLSTM, Dense, Dropout, Embedding,
-                          Lambda)
+from tensorflow.keras import Input, Model
+from tensorflow.keras.callbacks import LearningRateScheduler
+from tensorflow.keras.layers import (Activation, BatchNormalization, Concatenate, CuDNNLSTM, Dense, Dropout, Embedding,
+                                     Lambda)
 
 from artstat import util
 from artstat.util import Text2Seq, capitalize
 
 
 def sampling_layer_gather_nd(x):
-    import tensorflow as tf
     data, sample_indices = x
     return tf.gather_nd(data, tf.cast(sample_indices, tf.int32))
 
@@ -176,40 +176,13 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
         info("Loading model from ", starting_model_file)
         model = keras.models.load_model(starting_model_file)
     else:
-        emb_matrix_cache_path = os.path.join(cache_dir, "emb_matrix")
-        if cache_dir and os.path.exists(emb_matrix_cache_path):
-            info("Loading embedding matrix from cache")
-            with open(emb_matrix_cache_path, "rb") as f:
-                emb_matrix = pickle.Unpickler(f).load()
-        else:
-            info("Loading embedding matrix")
-            emb_matrix = util.load_embeddings(vocab, glove_dims, glove_file)
-            if cache_dir:
-                info("Writing embedding matrix cache")
-                with open(emb_matrix_cache_path, "wb") as f:
-                    pickle.Pickler(f, protocol=pickle.HIGHEST_PROTOCOL).dump(emb_matrix)
+        emb_matrix = load_embedding_matrix(cache_dir, glove_dims, glove_file, vocab)
         info("Creating model")
         model = make_model(emb_matrix=emb_matrix, vocab=vocab, seqlen=seqlen, sample_size=sample_size,
                            lstm_size=lstm_size, dense_size=dense_size, dense_layers=dense_layers,
                            lstm_layers=lstm_layers, dropout_rate=dropout_rate)
 
-    training_data_cache_path = os.path.join(cache_dir, "training_data")
-    if cache_dir and os.path.exists(training_data_cache_path):
-        info("Loading training data from cache:", training_data_cache_path)
-        with open(training_data_cache_path, "rb") as f:
-            unpickler = pickle.Unpickler(f)
-            X, Xu = unpickler.load()
-    else:
-        info("Loading training data from", training_data_dir)
-        X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, numfiles=training_max_files,
-                           lowercase=vocab_is_lowercase)
-        if cache_dir:
-            info("Saving prepared training data to cache:", training_data_cache_path)
-            with open(training_data_cache_path, "wb") as f:
-                pickler = pickle.Pickler(f, pickle.HIGHEST_PROTOCOL)
-                pickler.dump([X, Xu])
-
-    info("Unknown words in training data: %.2f%%" % util.unknown_word_percentage(Xu))
+    X, Xu = load_training_data(cache_dir, seqlen, training_data_dir, training_max_files, vocab, vocab_is_lowercase)
 
     checkpoint_filepath = "weights.lstm%d.batch%d.glove%d.sample%d.vocab%d.%s.hdf5" % (
         lstm_size, batch_size, glove_dims, sample_size, vocab_size, "default")
@@ -224,10 +197,8 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
         return lr
 
     decay_scheduler = LearningRateScheduler(decay, verbose=1)
-
-    opt = keras.optimizers.Adam(lr=0.0)
-    model.compile(opt, loss='categorical_crossentropy', metrics=["accuracy"])
-
+    optimizer = keras.optimizers.Adam(lr=0.0)
+    model.compile(optimizer, loss='categorical_crossentropy', metrics=["accuracy"])
     train_seq = util.NegativeSamplingPermutedSequence(data_x=X, data_xu=Xu, seqlen=seqlen, batch_size=batch_size,
                                                       sample_size=sample_size, vocab_size=len(vocab) + 1)
     steps_per_epoch = int(math.floor(len(X) / (batch_size * epochs_per_dataset)))
@@ -235,6 +206,46 @@ def train(vocab_file, vocab_is_lowercase, glove_file, glove_dims, training_data_
     model.fit_generator(train_seq, steps_per_epoch=steps_per_epoch, epochs=num_epochs,
                         callbacks=[checkpoint, decay_scheduler], initial_epoch=starting_epoch, verbose=1,
                         use_multiprocessing=False, workers=8, max_queue_size=64)
+
+
+def load_training_data(cache_dir, seqlen, training_data_dir, training_max_files, vocab, vocab_is_lowercase):
+    training_data_cache_path = os.path.join(cache_dir, "training_data")
+
+    if cache_dir and os.path.exists(training_data_cache_path):
+        info("Loading training data from cache:", training_data_cache_path)
+        with open(training_data_cache_path, "rb") as f:
+            unpickler = pickle.Unpickler(f)
+            X, Xu = unpickler.load()
+            return X, Xu
+
+    info("Loading training data from", training_data_dir)
+    X, Xu = util.load_data(training_data_dir, vocab, pad=seqlen, numfiles=training_max_files,
+                           lowercase=vocab_is_lowercase)
+    if cache_dir:
+        info("Saving prepared training data to cache:", training_data_cache_path)
+        with open(training_data_cache_path, "wb") as f:
+            pickler = pickle.Pickler(f, pickle.HIGHEST_PROTOCOL)
+            pickler.dump([X, Xu])
+
+    info("Unknown words in training data: %.2f%%" % util.unknown_word_percentage(Xu))
+
+    return X, Xu
+
+
+def load_embedding_matrix(cache_dir, glove_dims, glove_file, vocab):
+    emb_matrix_cache_path = os.path.join(cache_dir, "emb_matrix")
+    if cache_dir and os.path.exists(emb_matrix_cache_path):
+        info("Loading embedding matrix from cache")
+        with open(emb_matrix_cache_path, "rb") as f:
+            emb_matrix = pickle.Unpickler(f).load()
+    else:
+        info("Loading embedding matrix")
+        emb_matrix = util.load_embeddings(vocab, glove_dims, glove_file)
+        if cache_dir:
+            info("Writing embedding matrix cache")
+            with open(emb_matrix_cache_path, "wb") as f:
+                pickle.Pickler(f, protocol=pickle.HIGHEST_PROTOCOL).dump(emb_matrix)
+    return emb_matrix
 
 
 #######################################################################################################################

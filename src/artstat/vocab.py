@@ -2,14 +2,14 @@
 
 import click
 import numpy as np
+from tensorflow.python.lib.io import file_io as fio
 from tqdm import tqdm
 
-# line = unidecode(line)
 from artstat.util import CustomTokenizer, recursively_list_files
 
 
 def add_to_vocab(vocab, word):
-    if not word in vocab.keys():
+    if word not in vocab.keys():
         vocab[word] = 0
     vocab[word] += 1
 
@@ -26,16 +26,10 @@ def printvocab(vocab):
 
 
 def writevocab(vocab, outputfile, sortwords, vocabsize):
-    items = []
-    if sortwords:
-        items = sortedvocab(vocab)
-    else:
-        items = vocab.items()
-
     covered = 0
-    with open(outputfile, "w") as f:
+    with fio.FileIO(outputfile, mode="w") as f:
         for i, (word, count) in enumerate(sortedvocab(vocab)):
-            if vocabsize > 0 and i > vocabsize:
+            if 0 < vocabsize < i:
                 break
             f.write(word)
             f.write("\n")
@@ -45,11 +39,11 @@ def writevocab(vocab, outputfile, sortwords, vocabsize):
 
 
 @click.command()
-@click.option("--normalize_unicode", default=True, help="Convert Unicode chars, e.g punctuation, to their " \
+@click.option("--normalize_unicode", default=True, help="Convert Unicode chars, e.g punctuation, to their "
                                                         "closest ASCII counterparts. Def: true")
-@click.option("--maxnumfiles", default=0, help="Only process at most this many files. " \
+@click.option("--maxnumfiles", default=0, help="Only process at most this many files. "
                                                "Set to zero or don't specify to process all files. Def: all files.")
-@click.option("--outputfile", default="", help="If provided, will write out a list of vocabulary words " \
+@click.option("--outputfile", default="", help="If provided, will write out a list of vocabulary words "
                                                "to this file, one per line.")
 @click.option("--vocabsize", default=0, help="Max words to output in vocab. Default=0, output all")
 @click.option("--output_word_counts_file", default="",
@@ -81,9 +75,9 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet,
 
     wordsperfile = []
     for i, filename in enumerate(files):
-        if maxnumfiles > 0 and i + 1 > maxnumfiles:
+        if 0 < maxnumfiles < i + 1:
             break
-        with open(filename, "r") as f:
+        with fio.FileIO(filename, mode="r") as f:
             text = f.read()
             if lowercase:
                 text = text.lower()
@@ -104,11 +98,10 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet,
     echo("Total words:", totaloccurrences)
     echo("Max words per file:", np.max(wpf))
     echo("Avg words per file:", np.mean(wpf))
-    echo("50th percentile:", np.percentile(wpf, 50.0))
-    echo("90th percentile:", np.percentile(wpf, 90.0))
-    echo("95th percentile:", np.percentile(wpf, 95.0))
-    echo("99th percentile:", np.percentile(wpf, 99.0))
-    echo("99.9th percentile:", np.percentile(wpf, 99.9))
+    echo("50th percentile:", np.percentile(wpf, 50))
+    echo("90th percentile:", np.percentile(wpf, 90))
+    echo("95th percentile:", np.percentile(wpf, 95))
+    echo("99th percentile:", np.percentile(wpf, 99))
 
     if outputfile:
         covered = writevocab(vocab, outputfile, sortwords, vocabsize)
@@ -123,7 +116,7 @@ def main(normalize_unicode, maxnumfiles, outputfile, textpath, sortwords, quiet,
                 hist[count] = 0
             hist[count] += 1
         sortedhist = sorted(hist.items(), key=(lambda x: x[0]))
-        with open(output_word_counts_file, "w") as f:
+        with fio.FileIO(output_word_counts_file, "w") as f:
             wordsum = 0
             for k, v in sortedhist:
                 wordsum += v

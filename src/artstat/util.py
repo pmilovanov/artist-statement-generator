@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import asyncio
 import math
 import os
 
@@ -7,7 +6,7 @@ import numpy
 import numpy as np
 import regex as re
 from nltk import WordPunctTokenizer
-from keras.utils import Sequence
+from tensorflow.keras.utils import Sequence
 from tqdm import tqdm
 from unidecode import unidecode
 
@@ -27,7 +26,7 @@ def load_vocab(filename, maxwords=0):
     words.append(pad)
     with open(filename, "r") as f:
         for i, line in enumerate(f):
-            if maxwords > 0 and i + 1 > maxwords:
+            if 0 < maxwords < i + 1:
                 break
             word = line.strip()
             words.append(word)
@@ -167,7 +166,7 @@ def load_data_sequences(path, vocab, seqlen, stride, numfiles=0):
     t2s = Text2Seq(vocab)
     files = recursively_list_files(path)
     for i, fname in enumerate(tqdm(files, ascii=True)):
-        if numfiles > 0 and (i + 1) > numfiles:
+        if 0 < numfiles < (i + 1):
             break  # Process at most `numfiles` files
         with open(fname, "r") as f:
             seq, unk = t2s.toseq(f.read())
